@@ -1,12 +1,12 @@
 # EverTale_BE
 
-# 🛠️ 프로젝트 Convention
+## 🛠️ 프로젝트 Convention
 
-## ✅ Package
+### ✅ Package
 
-### 디렉토리 구조 전략
+#### 디렉토리 구조 전략
 
-#### `domain`
+##### `domain`
 - `controller`
 - `dto`  
   - 정적 팩토리 메소드로 entity ↔ dto
@@ -15,7 +15,7 @@
 - `repository`
 - `service`
 
-#### `global`
+##### `global`
 - `config` : security, aws 등 설정 정보
 - `entity` : 공통 엔티티 (예: `BaseTimeEntity`)
 - `payload` : 응답 관련 구조  
