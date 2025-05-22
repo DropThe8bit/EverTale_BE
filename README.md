@@ -1,5 +1,25 @@
 # EverTale_BE
 
+<br>
+
+## 🛠️ Backend 기술 스택
+
+| 구성 요소 | 사용 기술 |
+| --- | --- |
+| **프레임워크** | Spring Boot, Spring Security, Spring Web, Spring Data JPA |
+| **인증** | OAuth 2.0 |
+| **서버 / 배포** | AWS EC2, Docker |
+| **파일 저장소** | AWS S3 |
+
+## 🗄️ 데이터베이스
+
+| 구성 요소 | 사용 기술 |
+| --- | --- |
+| **RDBMS** | MySQL |
+| **캐시 / 세션 저장소** | Redis |
+
+<br>
+
 ## 🛠️ 프로젝트 Convention
 
 ### ✅ Package
