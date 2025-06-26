@@ -31,7 +31,23 @@ public class StoryCharacter {
     @JsonBackReference
     private Story story;
 
+    @Builder.Default
     @OneToMany(mappedBy = "storyCharacter",cascade = {CascadeType.ALL})
     private List<CharacterPersonality> characterPersonalities = new ArrayList<>();
+
+    public void setStory(Story story) {
+        this.story = story;
+        if (story.getStoryCharacter() != this) {
+            story.setStoryCharacter(this);
+        }
+    }
+
+    public void addCharacterPersonality(Personality personality) {
+        CharacterPersonality cp = CharacterPersonality.builder()
+                .storyCharacter(this)
+                .personality(personality)
+                .build();
+        this.characterPersonalities.add(cp);
+    }
 
 }

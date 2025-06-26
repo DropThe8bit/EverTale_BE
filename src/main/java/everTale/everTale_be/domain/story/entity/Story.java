@@ -36,4 +36,16 @@ public class Story {
     @OneToMany(mappedBy = "story", cascade = {CascadeType.ALL})
     private List<Scene> storyScenes = new ArrayList<>();
 
+    public void setStoryCharacter(StoryCharacter storyCharacter) {
+        this.storyCharacter = storyCharacter;
+        if (storyCharacter.getStory() != this) {
+            storyCharacter.setStory(this);
+        }
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+
 }

@@ -30,6 +30,9 @@ public class Scene {
     @JsonManagedReference
     private Quiz quiz;
 
+    public void setImageUrl(String imageUrl) {
+        this.image_url = imageUrl;
+    }
 
 }
 
