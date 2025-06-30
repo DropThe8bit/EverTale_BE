@@ -18,9 +18,13 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Not Found
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
+    NOT_FOUND_REFRESH_TOKEN(HttpStatus.NOT_FOUND, "TOKEN404", "리프레시 토큰이 존재하지 않습니다."),
 
     // User 관련 에러
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER4002", "닉네임은 필수입니다."),
+    ALREADY_EXISTS_EMAIL(HttpStatus.CONFLICT, "USER409", "이미 존재하는 이메일입니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER401", "이메일 또는 비밀번호가 일치하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "USER4012", "유효하지 않은 리프레시 토큰입니다."),
 
     //s3 관련 에러
     NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "UPLOAD400", "파일의 이름에 확장자가 존재하지 않습니다."),
