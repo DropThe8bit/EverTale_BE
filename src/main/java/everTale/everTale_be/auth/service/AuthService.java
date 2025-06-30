@@ -9,7 +9,9 @@ import everTale.everTale_be.domain.user.domain.Enum.LoginProvider;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
-import everTale.everTale_be.global.apiPayload.exception.GeneralException;
+import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
+import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
+import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class AuthService {
         boolean exists = userRepository.existsByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL);
 
         if (exists) {
-            throw new GeneralException(ErrorStatus.ALREADY_EXISTS_EMAIL);
+            throw new BadRequestHandler(ErrorStatus.ALREADY_EXISTS_EMAIL);
         }
         User user = User.builder()
                 .email(requestDto.getEmail())
@@ -46,9 +48,9 @@ public class AuthService {
     // 일반 로그인
     public LoginTokenResponseDto login(LoginRequestDto requestDto){
         User user = userRepository.findByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new GeneralException(ErrorStatus.INVALID_CREDENTIALS);
+            throw new UnAuthorizedHandler(ErrorStatus.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtUtil.generateAccessToken(user);
@@ -97,11 +99,11 @@ public class AuthService {
 
         String storedRefreshToken = tokenAuthService.getRefreshToken(userId);
         if (!storedRefreshToken.equals(refreshToken)) {
-            throw new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN);
+            throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
         String newAccessToken = jwtUtil.generateAccessToken(user);
         String newRefreshToken = jwtUtil.generateRefreshToken(user);
 
@@ -119,7 +121,7 @@ public class AuthService {
     // 회원 탈퇴
     public void withdraw(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
         userRepository.anonymizeUser(userId);
         tokenAuthService.deleteRefreshToken(userId);
     }
