@@ -1,9 +1,9 @@
 package everTale.everTale_be.auth.dto.request;
 
-import everTale.everTale_be.domain.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,6 +20,10 @@ public class SignUpRequestDto {
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
+    @Pattern(
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
+            message = "비밀번호는 영문자, 숫자, 특수문자를 포함한 8자 이상이어야 합니다."
+    )
     @Schema(description = "비밀번호", example = "password123!")
     private String password;
 
