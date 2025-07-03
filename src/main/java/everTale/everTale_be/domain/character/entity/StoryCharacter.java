@@ -21,30 +21,30 @@ public class StoryCharacter {
     private Long id;
 
     private String name;
-    private String image_url;
+    private String imageUrl;
     private int age;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @OneToOne(mappedBy = "storyCharacter")
+    @OneToOne(mappedBy = "character")
     @JsonBackReference
     private Story story;
 
     @Builder.Default
-    @OneToMany(mappedBy = "storyCharacter",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "character",cascade = {CascadeType.ALL})
     private List<CharacterPersonality> characterPersonalities = new ArrayList<>();
 
     public void setStory(Story story) {
         this.story = story;
-        if (story.getStoryCharacter() != this) {
-            story.setStoryCharacter(this);
+        if (story.getCharacter() != this) {
+            story.setCharacter(this);
         }
     }
 
     public void addCharacterPersonality(Personality personality) {
         CharacterPersonality cp = CharacterPersonality.builder()
-                .storyCharacter(this)
+                .character(this)
                 .personality(personality)
                 .build();
         this.characterPersonalities.add(cp);

@@ -15,11 +15,13 @@ public class Scene {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     private String content;
 
     private int page;
 
-    private String image_url;
+    @Setter
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "story_id", nullable = false)
@@ -30,9 +32,13 @@ public class Scene {
     @JsonManagedReference
     private Quiz quiz;
 
-    public void setImageUrl(String imageUrl) {
-        this.image_url = imageUrl;
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
+        if (quiz.getScene() != this) {
+            quiz.setScene(this);
+        }
     }
+
 
 }
 
