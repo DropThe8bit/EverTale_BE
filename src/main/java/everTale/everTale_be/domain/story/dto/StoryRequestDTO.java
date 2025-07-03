@@ -88,8 +88,6 @@ public class StoryRequestDTO {
 
     @Getter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class FastApiInitStoryRequestDTO {
         private String title;
         private String genre;
