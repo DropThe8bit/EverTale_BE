@@ -32,7 +32,7 @@ public class StoryController {
     }
 
     @Operation(summary = "줄거리 수정 API", description = "특정 장면의 줄거리를 사용자가 수정한 내용으로 업데이트한다.")
-    @PutMapping("/{storyId}/{sceneNum}/update-story")
+    @PatchMapping("/{storyId}/scene/{sceneNum}")
     public ApiResponse<String> updateSceneContent(
             @PathVariable Long storyId,
             @PathVariable int sceneNum,
@@ -80,21 +80,21 @@ public class StoryController {
     }
 
     @Operation(summary = "다음 줄거리 생성 API", description = "이전 줄거리를 기반으로 다음 줄거리를 생성한다.")
-    @PostMapping("/{storyId}/{sceneNum}/next-story")
+    @PostMapping("/{storyId}/scene/{sceneNum}")
     public ApiResponse<String> createNextStory(@PathVariable Long storyId, @PathVariable int sceneNum) {
         String nextStory = storyService.generateNextStory(storyId, sceneNum);
         return ApiResponse.onSuccess(nextStory);
     }
 
     @Operation(summary = "질문 생성 API", description = "이전 줄거리를 기반으로 아이에게 던질 질문을 생성한다.")
-    @PostMapping("/{storyId}/{sceneNum}/question")
+    @PostMapping("/{storyId}/scene/{sceneNum}/question")
     public ApiResponse<String> createQuestionFromPrevScene(@PathVariable Long storyId, @PathVariable int sceneNum) {
         String question = storyService.generateQuestionFromPreviousScene(storyId, sceneNum);
         return ApiResponse.onSuccess(question);
     }
 
     @Operation(summary = "답변 기반 다음 줄거리 생성 API", description = "아이의 답변을 기반으로 다음 줄거리를 생성한다.")
-    @PostMapping("/{storyId}/{sceneNum}/next-from-answer")
+    @PostMapping("/{storyId}/scene/{sceneNum}/next-from-answer")
     public ApiResponse<String> createNextSceneFromAnswer(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @Parameter(description = "장면 번호") @PathVariable int sceneNum,
@@ -103,9 +103,9 @@ public class StoryController {
         String nextStory = storyService.generateNextStoryWithAnswer(storyId, sceneNum, request.getAnswer());
         return ApiResponse.onSuccess(nextStory);
     }
-    @Operation(summary = "그림 생성 API", description = "줄거리와 아이의 그림 기반으로 이미지를 생성한다.")
+    @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 줄거리를 기반으로 이미지를 생성합니다.")
     @PostMapping(
-            value = "/{storyId}/{sceneNum}/controlnet-image",
+            value = "/{storyId}/scene/{sceneNum}/controlnet",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<String> createImageFromSketch(
@@ -118,8 +118,8 @@ public class StoryController {
         return ApiResponse.onSuccess(image);
     }
 
-    @Operation(summary = "그림 생성 API", description = "줄거리와 아이의 그림 기반으로 이미지를 생성한다.")
-    @PostMapping( "/{storyId}/{sceneNum}/dalle-image")
+    @Operation(summary = "줄거리 기반 이미지 생성 API", description = "줄거리 텍스트만을 기반으로 이미지를 생성합니다.")
+    @PostMapping( "/{storyId}/scene/{sceneNum}/dalle")
     public ApiResponse<String> createImageFromPrompt(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @Parameter(description = "장면 번호") @PathVariable int sceneNum

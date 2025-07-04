@@ -32,13 +32,6 @@ public class Scene {
     @JsonManagedReference
     private Quiz quiz;
 
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-        if (quiz.getScene() != this) {
-            quiz.setScene(this);
-        }
-    }
-
 
 }
 

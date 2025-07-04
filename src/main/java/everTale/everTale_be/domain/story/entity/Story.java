@@ -23,7 +23,7 @@ public class Story {
     private String title;
 
     @Column(name = "image_url")
-    private String image_url;
+    private String imageUrl;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -47,13 +47,6 @@ public class Story {
         this.character = character;
         if (character.getStory() != this) {
             character.setStory(this);
-        }
-    }
-
-    public void setEasterEggLetter(EasterEggLetter letter) {
-        this.easterEggLetter = letter;
-        if (letter.getStory() != this) {
-            letter.setStory(this);
         }
     }
 

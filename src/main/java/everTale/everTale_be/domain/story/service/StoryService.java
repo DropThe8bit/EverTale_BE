@@ -46,8 +46,6 @@ public class StoryService {
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
 
         scene.setContent(updatedContent);
-        sceneRepository.save(scene);
-
         return updatedContent;
     }
 
@@ -102,7 +100,6 @@ public class StoryService {
 
         // 스토리에 캐릭터 연결
         story.setCharacter(character);
-        storyRepository.save(story);
     }
 
 
@@ -238,8 +235,6 @@ public class StoryService {
         String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, story.getGenre().name());
 
         scene.setImageUrl(imageUrl);
-        sceneRepository.save(scene);
-
         return imageUrl;
     }
 
@@ -255,8 +250,6 @@ public class StoryService {
         String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, story.getGenre().name());
 
         scene.setImageUrl(imageUrl);
-        sceneRepository.save(scene);
-
         return imageUrl;
     }
 }
