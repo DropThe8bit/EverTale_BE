@@ -3,6 +3,7 @@ package everTale.everTale_be.domain.story.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
+import everTale.everTale_be.domain.story.entity.enums.Genre;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,12 @@ public class Story {
 
     private String title;
 
-    private String image_url;
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private Genre genre;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "easter_egg_letter_id")
@@ -29,17 +35,18 @@ public class Story {
     private EasterEggLetter easterEggLetter;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "story_character_id")
+    @JoinColumn(name = "character_id")
     @JsonManagedReference
-    private StoryCharacter storyCharacter;
+    private StoryCharacter character;
 
-    @OneToMany(mappedBy = "story", cascade = {CascadeType.ALL})
+    @Builder.Default
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scene> storyScenes = new ArrayList<>();
 
-    public void setStoryCharacter(StoryCharacter storyCharacter) {
-        this.storyCharacter = storyCharacter;
-        if (storyCharacter.getStory() != this) {
-            storyCharacter.setStory(this);
+    public void setCharacter(StoryCharacter character) {
+        this.character = character;
+        if (character.getStory() != this) {
+            character.setStory(this);
         }
     }
 
