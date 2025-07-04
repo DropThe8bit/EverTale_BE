@@ -1,6 +1,8 @@
 package everTale.everTale_be.domain.story.external;
 
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.utils.MultipartInputStreamFileResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +41,12 @@ public class StoryApiClient {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody().getMessage();
             } else {
-                return "줄거리 생성 실패 (응답 없음)";
+                throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_STORY);
             }
 
         } catch (RestClientException e) {
             log.error("FastAPI 초기 줄거리 요청 실패", e);
-            return "줄거리 생성 실패 (API 호출 에러)";
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_STORY);
         }
     }
 
@@ -56,7 +58,12 @@ public class StoryApiClient {
                 FastApiTextResponseDto.class
         );
 
-        return response.getBody() != null ? response.getBody().getMessage() : "줄거리 생성 실패";
+        if (response.getBody() != null) {
+            return response.getBody().getMessage();
+        } else {
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_STORY);
+        }
+
     }
 
     // 질문 생성
@@ -68,7 +75,11 @@ public class StoryApiClient {
                 FastApiTextResponseDto.class
         );
 
-        return response.getBody() != null ? response.getBody().getMessage() : "질문 생성 실패";
+        if (response.getBody() != null) {
+            return response.getBody().getMessage();
+        } else {
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_QUESTION);
+        }
     }
 
     // 아이 답변 반영한 다음 줄거리 생성
@@ -80,7 +91,11 @@ public class StoryApiClient {
                 FastApiTextResponseDto.class
         );
 
-        return response.getBody() != null ? response.getBody().getMessage() : "다음 줄거리 생성 실패";
+        if (response.getBody() != null) {
+            return response.getBody().getMessage();
+        } else {
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_STORY);
+        }
     }
 
     // 스케치 이미지 + 프롬프트로 이미지 생성 요청
@@ -105,13 +120,13 @@ public class StoryApiClient {
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody().getImage_url();
+            }else{
+                throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_IMAGE);
             }
 
         } catch (Exception e) {
-            log.error("이미지 생성 중 오류 발생", e);
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_IMAGE);
         }
-
-        return "이미지 생성 실패";
     }
 
     // 프롬프트로 이미지 생성 요청
@@ -135,13 +150,15 @@ public class StoryApiClient {
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody().getImage_url();
+            }else{
+                throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_IMAGE);
             }
 
         } catch (Exception e) {
-            log.error("이미지 생성 중 오류 발생", e);
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_IMAGE);
         }
 
-        return "이미지 생성 실패";
+
     }
 
 

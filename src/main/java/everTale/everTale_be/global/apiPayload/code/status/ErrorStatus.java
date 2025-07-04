@@ -39,6 +39,9 @@ public enum ErrorStatus implements BaseErrorCode {
     FASTAPI_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FASTAPI500", "FastAPI 서버 호출 중 오류가 발생했습니다."),
     FASTAPI_IMAGE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FASTAPI501", "이미지 저장 중 오류가 발생했습니다."),
     ENABLE_TO_GENERATE_IMAGE(HttpStatus.BAD_REQUEST,"FASTAPI502","이미지 생성 중 오류가 발생했습니다."),
+    ENABLE_TO_GENERATE_STORY(HttpStatus.BAD_REQUEST,"FASTPAI503","줄거리 생성 중 오류가 발생했습니다."),
+    ENABLE_TO_GENERATE_QUESTION(HttpStatus.BAD_REQUEST,"FASTPAI504","질문 생성 중 오류가 발생했습니다."),
+
 
     // EasterEgg 관련
     EASTER_EGG_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG400","이스터에그 편지를 찾을 수 없습니다.")
