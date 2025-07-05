@@ -37,3 +37,6 @@ spring:
       groups-order: DESC
       tags-sorter: alpha
       operations-sorter: method
+
+jwt:
+  secret-key: ${SECRET_KEY}
