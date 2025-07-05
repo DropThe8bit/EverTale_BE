@@ -29,17 +29,17 @@ public class AuthService {
 
     // 일반 회원가입
     public void signup(SignUpRequestDto requestDto) {
-        boolean exists = userRepository.existsByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL);
 
+        boolean exists = userRepository.existsByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL);
         if (exists) {
             throw new BadRequestHandler(ErrorStatus.ALREADY_EXISTS_EMAIL);
         }
+
         User user = User.builder()
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .username(requestDto.getUsername())
                 .phone(requestDto.getPhone())
-                .institution(requestDto.getInstitution())
                 .loginProvider(LoginProvider.LOCAL) // 일반 회원가입은 LOCAL
                 .build();
         userRepository.save(user);
@@ -56,7 +56,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        tokenAuthService.saveRefreshToken(user.getUserId(), refreshToken);
+        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
 
         return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
     }
@@ -70,7 +70,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        tokenAuthService.saveRefreshToken(user.getUserId(), refreshToken);
+        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
 
         return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
     }
@@ -86,7 +86,6 @@ public class AuthService {
                 .username(responseDto.getResponse().getName())
                 .phone(responseDto.getResponse().getMobile())
                 .password("")
-                .institution(null)
                 .loginProvider(LoginProvider.NAVER)
                 .build();
         return userRepository.save(user);
