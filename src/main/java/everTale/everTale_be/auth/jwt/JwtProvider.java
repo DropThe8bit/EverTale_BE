@@ -1,5 +1,6 @@
 package everTale.everTale_be.auth.jwt;
 
+import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
@@ -9,8 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -46,5 +45,23 @@ public class JwtProvider {
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+    }
+
+    // profileId까지 들어 있는 토큰일 경우 사용
+    public Authentication getAuthenticationWithProfile(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        Long userId = claims.get("userId", Long.class);
+        Long profileId = claims.get("profileId", Long.class);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        CustomProfileDetails customProfileDetails = new CustomProfileDetails(userId, profileId);
+
+        return new UsernamePasswordAuthenticationToken(customProfileDetails, null, List.of(() -> "ROLE_USER"));
+    }
+
+    public Claims getClaims(String token) {
+        return jwtUtil.extractClaims(token); // 토큰에서 claim 추출
     }
 }
