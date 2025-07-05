@@ -4,6 +4,8 @@ import everTale.everTale_be.auth.dto.request.*;
 import everTale.everTale_be.auth.dto.response.LoginTokenResponseDto;
 import everTale.everTale_be.auth.jwt.CustomUserDetails;
 import everTale.everTale_be.auth.service.AuthService;
+import everTale.everTale_be.domain.profile.dto.response.ProfileEnterResponseDto;
+import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final ProfileService profileService;
 
     // 일반 회원가입
     @Operation(summary = "일반 회원가입", description = "이메일, 비밀번호, 이름, 전화번호, 기관명으로 회원가입을 진행합니다.")
@@ -50,6 +53,13 @@ public class AuthController {
     @Operation(summary = "토큰 재발급", description = "Refresh Token을 통해 Access Token과 Refresh Token을 재발급합니다.")
     public ApiResponse<LoginTokenResponseDto> reissue(@Valid @RequestBody ReissueRequestDto requestDto){
         LoginTokenResponseDto responseDto = authService.reissue(requestDto.getRefreshToken());
+        return ApiResponse.onSuccess(responseDto);
+    }
+
+    @PostMapping("/profile/reissue")
+    @Operation(summary = "프로필 기반 AccessToken 재발급", description = "만료된 access token을 refresh token으로 재발급합니다.")
+    public ApiResponse<ProfileEnterResponseDto> reissueProfileAccessToken(@Valid @RequestBody ProfileReissueRequestDto requestDto) {
+        ProfileEnterResponseDto responseDto = profileService.reissueWithProfile(requestDto.getRefreshToken(), requestDto.getProfileId());
         return ApiResponse.onSuccess(responseDto);
     }
 

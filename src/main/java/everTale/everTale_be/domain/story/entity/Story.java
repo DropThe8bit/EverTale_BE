@@ -3,6 +3,7 @@ package everTale.everTale_be.domain.story.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
+import everTale.everTale_be.domain.profile.domain.Profile;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +36,10 @@ public class Story {
 
     @OneToMany(mappedBy = "story", cascade = {CascadeType.ALL})
     private List<Scene> storyScenes = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id", updatable = false, nullable = false)
+    private Profile profile;
 
     public void setStoryCharacter(StoryCharacter storyCharacter) {
         this.storyCharacter = storyCharacter;
