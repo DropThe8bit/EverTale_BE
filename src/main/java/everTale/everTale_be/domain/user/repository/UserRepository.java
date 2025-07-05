@@ -16,12 +16,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailAndLoginProvider(String email, LoginProvider loginProvider);
 
+    Optional<User> findByProfiles_Id(Long profileId);
+
     @Modifying
     @Transactional
     @Query("UPDATE User u SET " +
             "u.email = CONCAT('deleted_', STR(:userId), '_', FUNCTION('UUID')), " +
             "u.username = '알 수 없음', " +
             "u.phone = '알 수 없음' " +
-            "WHERE u.userId = :userId")
+            "WHERE u.id = :userId")
     void anonymizeUser(@Param("userId") Long userId);
 }
