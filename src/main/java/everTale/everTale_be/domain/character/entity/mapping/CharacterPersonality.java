@@ -16,8 +16,8 @@ public class CharacterPersonality {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "story_character_id", nullable = false)
-    private StoryCharacter storyCharacter;
+    @JoinColumn(name = "character_id", nullable = false)
+    private StoryCharacter character;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personality_id",nullable = false)

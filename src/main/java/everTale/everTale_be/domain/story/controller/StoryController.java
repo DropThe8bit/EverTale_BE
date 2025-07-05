@@ -1,0 +1,131 @@
+package everTale.everTale_be.domain.story.controller;
+
+import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.domain.story.service.StoryService;
+import everTale.everTale_be.global.apiPayload.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.crypto.spec.DESedeKeySpec;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/story")
+public class StoryController {
+
+    private final StoryService storyService;
+
+    @Operation(summary = "단일 Scene 조회 API", description = "스토리 ID와 씬 번호를 기반으로 해당 씬의 내용을 조회합니다.")
+    @GetMapping("/{storyId}/scene/{sceneNum}")
+    public ApiResponse<SceneResponseDTO> getSceneBySceneNum(
+            @PathVariable Long storyId,
+            @PathVariable int sceneNum
+    ) {
+        SceneResponseDTO scene = storyService.getSceneBySceneNum(storyId, sceneNum);
+        return ApiResponse.onSuccess(scene);
+    }
+
+    @Operation(summary = "줄거리 수정 API", description = "특정 장면의 줄거리를 사용자가 수정한 내용으로 업데이트한다.")
+    @PatchMapping("/{storyId}/scene/{sceneNum}")
+    public ApiResponse<String> updateSceneContent(
+            @PathVariable Long storyId,
+            @PathVariable int sceneNum,
+            @RequestBody StoryRequestDTO.StoryUpdateRequestDTO request
+    ) {
+        String updatedContent = storyService.updateSceneContent(storyId, sceneNum, request.getUpdatedContent());
+        return ApiResponse.onSuccess(updatedContent);
+    }
+
+    @Operation(summary = "스토리 삭제 API", description = "스토리 ID를 기준으로 해당 스토리 및 모든 연관 Scene을 삭제합니다.")
+    @DeleteMapping("/{storyId}")
+    public ApiResponse<String> deleteStory(@PathVariable Long storyId) {
+        storyService.deleteStoryWithScenes(storyId);
+        return ApiResponse.onSuccess("스토리가 성공적으로 삭제되었습니다.");
+    }
+
+    @Operation(summary = "새 스토리 생성 (ID만 생성)", description = "빈 스토리를 생성하고, 생성된 storyId를 반환합니다.")
+    @PostMapping("/create")
+    public ApiResponse<Long> createStory() {
+        Long storyId = storyService.createEmptyStory();
+        return ApiResponse.onSuccess(storyId);
+    }
+
+    @Operation(summary = "초기 캐릭터 생성 API", description = "카테코리 정보를 받아서 초기 캐릭터를 설정한다.")
+    @PostMapping(
+            value = "/{storyId}/character-info",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<String> createCharacter(
+            @PathVariable Long storyId,
+            @RequestPart StoryRequestDTO.StoryCharacterInfoRequestDTO request,
+            @RequestPart("initCharacterImage") MultipartFile initCharacterImage) {
+        storyService.saveInitialCharacterInfo(storyId, request, initCharacterImage);
+        return ApiResponse.onSuccess("초기 캐릭터 생성이 완료되었습니다.");
+    }
+
+    @Operation(summary = "초기 줄거리 생성 API", description = "storyId로 연관된 캐릭터 정보와 사용자 설정(장르, 세계관)을 바탕으로 초기 줄거리를 생성한다.")
+    @PostMapping("/{storyId}/init-story")
+    public ApiResponse<String> createInitStory(
+            @PathVariable Long storyId,
+            @RequestBody StoryRequestDTO.StoryWorldViewRequestDTO request
+    ) {
+        String initStory = storyService.generateInitStory(storyId, request);
+        return ApiResponse.onSuccess(initStory);
+    }
+
+    @Operation(summary = "다음 줄거리 생성 API", description = "이전 줄거리를 기반으로 다음 줄거리를 생성한다.")
+    @PostMapping("/{storyId}/scene/{sceneNum}")
+    public ApiResponse<String> createNextStory(@PathVariable Long storyId, @PathVariable int sceneNum) {
+        String nextStory = storyService.generateNextStory(storyId, sceneNum);
+        return ApiResponse.onSuccess(nextStory);
+    }
+
+    @Operation(summary = "질문 생성 API", description = "이전 줄거리를 기반으로 아이에게 던질 질문을 생성한다.")
+    @PostMapping("/{storyId}/scene/{sceneNum}/question")
+    public ApiResponse<String> createQuestionFromPrevScene(@PathVariable Long storyId, @PathVariable int sceneNum) {
+        String question = storyService.generateQuestionFromPreviousScene(storyId, sceneNum);
+        return ApiResponse.onSuccess(question);
+    }
+
+    @Operation(summary = "답변 기반 다음 줄거리 생성 API", description = "아이의 답변을 기반으로 다음 줄거리를 생성한다.")
+    @PostMapping("/{storyId}/scene/{sceneNum}/next-from-answer")
+    public ApiResponse<String> createNextSceneFromAnswer(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
+            @RequestBody StoryRequestDTO.StoryAnswerRequestDTO request
+    ) {
+        String nextStory = storyService.generateNextStoryWithAnswer(storyId, sceneNum, request.getAnswer());
+        return ApiResponse.onSuccess(nextStory);
+    }
+    @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 줄거리를 기반으로 이미지를 생성합니다.")
+    @PostMapping(
+            value = "/{storyId}/scene/{sceneNum}/controlnet",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<String> createImageFromSketch(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
+            @Parameter(description = "스케치 이미지 파일", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
+            @RequestPart("sketch") MultipartFile sketch
+    ) {
+        String image = storyService.generateImageFromSketch(storyId, sceneNum, sketch);
+        return ApiResponse.onSuccess(image);
+    }
+
+    @Operation(summary = "줄거리 기반 이미지 생성 API", description = "줄거리 텍스트만을 기반으로 이미지를 생성합니다.")
+    @PostMapping( "/{storyId}/scene/{sceneNum}/dalle")
+    public ApiResponse<String> createImageFromPrompt(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum
+    ) {
+        String image = storyService.generateImageFromPrompt(storyId, sceneNum);
+        return ApiResponse.onSuccess(image);
+    }
+
+}

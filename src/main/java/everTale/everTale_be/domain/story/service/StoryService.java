@@ -1,0 +1,255 @@
+package everTale.everTale_be.domain.story.service;
+
+import everTale.everTale_be.domain.character.entity.Personality;
+import everTale.everTale_be.domain.character.entity.StoryCharacter;
+import everTale.everTale_be.domain.character.entity.enums.Gender;
+import everTale.everTale_be.domain.character.repository.PersonalityRepository;
+import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
+import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.domain.story.entity.Scene;
+import everTale.everTale_be.domain.story.entity.Story;
+import everTale.everTale_be.domain.story.repository.SceneRepository;
+import everTale.everTale_be.domain.story.repository.StoryRepository;
+import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
+import everTale.everTale_be.domain.story.external.StoryApiClient;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class StoryService {
+
+    private final SceneRepository sceneRepository;
+    private final StoryRepository storyRepository;
+    private final StoryCharacterRepository storyCharacterRepository;
+    private final PersonalityRepository personalityRepository;
+    private final StoryApiClient storyApiClient;
+
+    // Scene 단일 조회
+    @Transactional(readOnly = true)
+    public SceneResponseDTO getSceneBySceneNum(Long storyId, int sceneNum) {
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        return SceneResponseDTO.from(scene);
+    }
+
+    @Transactional
+    public String updateSceneContent(Long storyId, int sceneNum, String updatedContent) {
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+
+        scene.setContent(updatedContent);
+        return updatedContent;
+    }
+
+
+    // 스토리 삭제
+    @Transactional
+    public void deleteStoryWithScenes(Long storyId) {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+
+        storyRepository.delete(story);
+    }
+
+
+    // 스토리 생성
+    @Transactional
+    public Long createEmptyStory() {
+        Story story = Story.builder()
+                        .build();
+        storyRepository.save(story);
+        return story.getId();
+    }
+
+    //초기 캐릭터 설정
+    @Transactional
+    public void saveInitialCharacterInfo(Long storyId,
+                                         StoryRequestDTO.StoryCharacterInfoRequestDTO request,
+                                         MultipartFile initCharacterImage) {
+
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+        story.updateTitle(request.getTitle());
+
+        // StoryCharacter 생성
+        StoryCharacter character = StoryCharacter.builder()
+                .name(request.getCharacterName())
+                .age(request.getAge())
+                .imageUrl(initCharacterImage.getOriginalFilename())
+                .gender(Gender.valueOf(request.getGender().toUpperCase()))
+                .build();
+
+        // Personality 리스트 저장
+        for (String pDesc : request.getPersonalities()) {
+            Personality personality = personalityRepository
+                    .findByPersonality(pDesc)
+                    .orElseGet(() -> personalityRepository.save(Personality.from(pDesc)));
+
+            character.addCharacterPersonality(personality);
+        }
+
+        storyCharacterRepository.save(character);
+
+        // 스토리에 캐릭터 연결
+        story.setCharacter(character);
+    }
+
+
+    // 초기 줄거리 생성
+    @Transactional
+    public String generateInitStory(Long storyId, StoryRequestDTO.StoryWorldViewRequestDTO request) {
+        // 1. storyId로 스토리 조회
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+
+        // 2. 연결된 캐릭터 가져오기
+        StoryCharacter storyCharacter = story.getCharacter();
+        if (storyCharacter == null) {
+            throw new NotFoundHandler(ErrorStatus.CHARACTER_NOT_FOUND);
+        }
+
+        // 2-1. personalities 문자열 리스트로 변환
+        List<String> personalities = storyCharacter.getCharacterPersonalities().stream()
+                .map(cp -> cp.getPersonality().getPersonality())
+                .collect(Collectors.toList());
+
+        // 3. FastAPI 요청용 JSON 만들기
+        StoryRequestDTO.FastApiInitStoryRequestDTO requestDto = StoryRequestDTO.FastApiInitStoryRequestDTO.builder()
+                .title(story.getTitle())
+                .genre(request.getGenre().name())
+                .worldView(request.getWorldView())
+                .name(storyCharacter.getName())
+                .age(storyCharacter.getAge())
+                .gender(storyCharacter.getGender().name())
+                .personalities(personalities)
+                .build();
+
+        // 4. FastAPI 호출해 초기 줄거리 생성
+        String initStory = storyApiClient.callFastApiForInitStory(requestDto);
+
+        // 5. 장르 저장
+        story.setGenre(request.getGenre());
+
+
+        // 6. 첫 장면 저장 (page=1)
+        Scene scene = Scene.builder()
+                .story(story)
+                .page(1)
+                .content(initStory)
+                .build();
+        sceneRepository.save(scene);
+
+        // 7. 줄거리 반환
+        return initStory;
+    }
+
+
+
+    // 이전 장면 기반 다음 줄거리 생성
+    public String generateNextStory(Long storyId, int sceneNum) {
+        // 1. 이전 줄거리 조회
+        Scene prevScene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum-1)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        String previousContent = prevScene.getContent();
+
+        // 2. Story & Character 조회
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+        StoryCharacter character = story.getCharacter();
+
+        // 3. Personality 추출
+        List<String> personalities = character.getCharacterPersonalities().stream()
+                .map(cp -> cp.getPersonality().getPersonality())
+                .collect(Collectors.toList());
+
+        // 4. DTO 조립 및 FastAPI 호출
+        StoryRequestDTO.NextStoryGenerateRequestDTO dto =
+                StoryRequestDTO.NextStoryGenerateRequestDTO.builder()
+                        .previous(previousContent)
+                        .sceneNum(sceneNum)
+                        .genre(story.getGenre().name())
+                        .title(story.getTitle())
+                        .name(character.getName())
+                        .age(character.getAge())
+                        .gender(character.getGender().name())
+                        .personalities(personalities)
+                        .build();
+
+        // 5. FastAPI 호출 → 다음 줄거리 생성
+        String nextContent = storyApiClient.callFastApiForNextStory(dto);
+
+        // 6. 새 Scene 저장
+        Scene newScene = Scene.builder()
+                .story(story)
+                .page(sceneNum)
+                .content(nextContent)
+                .build();
+
+        sceneRepository.save(newScene);
+
+        return nextContent;
+    }
+
+    // 이전 장면 기반 질문 생성
+    public String generateQuestionFromPreviousScene(Long storyId, int sceneNum) {
+        Scene prevScene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum - 1)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        return storyApiClient.callFastApiForQuestion(prevScene.getContent());
+    }
+
+    // 아이의 대답 기반 다음 줄거리 생성
+    public String generateNextStoryWithAnswer(Long storyId, int sceneNum, String answer) {
+        Scene prevScene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum - 1)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
+
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+
+        Scene newScene = Scene.builder()
+                .story(story)
+                .page(sceneNum)
+                .content(nextContent)
+                .build();
+
+        sceneRepository.save(newScene);
+        return nextContent;
+    }
+    // 줄거리 및 아이그림 기반 그림 생성
+    public String generateImageFromSketch(Long storyId, int sceneNum, MultipartFile sketch) {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+
+        String prompt = scene.getContent();
+        String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, story.getGenre().name());
+
+        scene.setImageUrl(imageUrl);
+        return imageUrl;
+    }
+
+    // 줄거리 기반 그림 생성
+    public String generateImageFromPrompt(Long storyId, int sceneNum) {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+
+        String prompt = scene.getContent();
+        String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, story.getGenre().name());
+
+        scene.setImageUrl(imageUrl);
+        return imageUrl;
+    }
+}

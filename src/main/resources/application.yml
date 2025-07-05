@@ -27,16 +27,26 @@ spring:
       max-file-size: 10MB
       max-request-size: 20MB
 
-  server:
-    servlet:
-      context-path: ${SPRING_SERVER_SERVLET_CONTEXT_PATH}
+server:
+   servlet:
+     context-path: ${SPRING_SERVER_SERVLET_CONTEXT_PATH}
 
-  springdoc:
-    swagger-ui:
-      path: /swagger
-      groups-order: DESC
-      tags-sorter: alpha
-      operations-sorter: method
+springdoc:
+  swagger-ui:
+    path: /swagger
+    groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: method
+
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    region:
+      static: ap-northeast-2
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
 
 jwt:
   secret-key: ${SECRET_KEY}
