@@ -50,3 +50,8 @@ cloud:
 
 jwt:
   secret-key: ${SECRET_KEY}
+
+naver:
+  client-id: ${naver.client-id}
+  client-secret: ${naver.client-secret}
+  redirect-uri: ${naver.redirect-uri}
