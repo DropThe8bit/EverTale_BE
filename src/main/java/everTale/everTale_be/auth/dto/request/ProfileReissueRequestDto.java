@@ -13,5 +13,6 @@ public class ProfileReissueRequestDto {
     @Schema(description = "Refresh Token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI...")
     private String refreshToken;
 
+    @Schema(description = "프로필 ID", example = "42")
     private Long profileId;
 }
