@@ -4,7 +4,7 @@ import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
-import everTale.everTale_be.global.apiPayload.exception.GeneralException;
+import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class JwtProvider {
         Long userId = claims.get("userId", Long.class);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
 
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
@@ -54,7 +54,7 @@ public class JwtProvider {
         Long profileId = claims.get("profileId", Long.class);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
 
         CustomProfileDetails customProfileDetails = new CustomProfileDetails(userId, profileId);
 
