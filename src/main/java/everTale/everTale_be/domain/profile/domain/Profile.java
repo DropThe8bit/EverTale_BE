@@ -30,6 +30,7 @@ public class Profile extends BaseTimeEntity {
     private String name;
 
     // 자녀용 필드
+    @Column(name = "birth_date")
     private LocalDate birthDate;
     private String institution;
 
@@ -38,7 +39,7 @@ public class Profile extends BaseTimeEntity {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "profile_type", nullable = false)
     private ProfileType profileType;
 
     @ManyToOne(fetch = FetchType.LAZY)
