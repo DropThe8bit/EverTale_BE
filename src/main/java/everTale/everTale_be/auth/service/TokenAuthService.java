@@ -1,6 +1,7 @@
 package everTale.everTale_be.auth.service;
 
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,6 +15,7 @@ public class TokenAuthService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String PREFIX = "refreshToken:";
+    private static final String BLACKLIST_PREFIX = "blacklist:";
 
     // token 저장
     public void saveRefreshToken(Long userId, String refreshToken) {
@@ -39,7 +41,32 @@ public class TokenAuthService {
     }
 
     // token 존재 여부
-    public boolean existsRefreshToken(Long userId) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(PREFIX + userId));
+    public void validateRefreshToken(Long userId, String refreshToken) {
+        String storedRefreshToken = getRefreshToken(userId);
+        if (!storedRefreshToken.equals(refreshToken)) {
+            throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
+        }
+    }
+
+    // BlackList
+    public void addToBlackListForAccessToken(String accessToken, String reason) {
+        System.out.println("Access Token: " + accessToken);
+
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new IllegalArgumentException("Access Token is null or empty");
+        }
+        redisTemplate.opsForValue().set(
+                BLACKLIST_PREFIX + accessToken,
+                reason,
+                1000 * 60 * 60,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    public void validateNotBlackListed(String token) {
+        boolean isBlackListed = Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + token));
+        if (isBlackListed) {
+            throw new BadRequestHandler(ErrorStatus.BLOCKED_TOKEN);
+        }
     }
 }
