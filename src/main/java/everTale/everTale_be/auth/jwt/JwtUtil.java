@@ -18,7 +18,7 @@ public class JwtUtil {
 
     private final SecretKey secretKey;
 
-    public JwtUtil(@Value("${SECRET_KEY}") String secret) {
+    public JwtUtil(@Value("${jwt.secret-key}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
@@ -31,7 +31,21 @@ public class JwtUtil {
         Date accessTokenExpiredAt = new Date(generated.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("userId", user.getUserId())
+                .claim("userId", user.getId())
+                .issuedAt(generated)
+                .expiration(accessTokenExpiredAt)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    // 프로필 선택 후, 프로필 ID가 추가된 JWT 토큰 생성
+    public String generateAccessTokenWithProfile(User user, Long profileId) {
+        Date generated = new Date(System.currentTimeMillis());
+        Date accessTokenExpiredAt = new Date(generated.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
+
+        return Jwts.builder()
+                .claim("userId", user.getId())  // userId
+                .claim("profileId", profileId)  // profileId 추가
                 .issuedAt(generated)
                 .expiration(accessTokenExpiredAt)
                 .signWith(secretKey)
@@ -44,7 +58,7 @@ public class JwtUtil {
         Date refreshTokenExpiredAt = new Date(generated.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("userId", user.getUserId())
+                .claim("userId", user.getId())
                 .issuedAt(generated)
                 .expiration(refreshTokenExpiredAt)
                 .signWith(secretKey)

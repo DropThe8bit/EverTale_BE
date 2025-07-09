@@ -1,7 +1,7 @@
 package everTale.everTale_be.auth.service;
 
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
-import everTale.everTale_be.global.apiPayload.exception.GeneralException;
+import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class TokenAuthService {
     public String getRefreshToken(Long userId) {
         String token = redisTemplate.opsForValue().get(PREFIX + userId);
         if (token == null) {
-            throw new GeneralException(ErrorStatus.NOT_FOUND_REFRESH_TOKEN);
+            throw new UnAuthorizedHandler(ErrorStatus.NOT_FOUND_REFRESH_TOKEN);
         }
         return token;
     }

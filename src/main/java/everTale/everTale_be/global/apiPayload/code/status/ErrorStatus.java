@@ -26,6 +26,13 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER401", "이메일 또는 비밀번호가 일치하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "USER4012", "유효하지 않은 리프레시 토큰입니다."),
 
+    // Profile 관련 에러
+    ALREADY_EXISTS_PROFILE(HttpStatus.CONFLICT, "PROFILE409", "중복되는 프로필 이름입니다."),
+    NOT_FOUND_PROFILE(HttpStatus.NOT_FOUND, "PROFILE404", "해당 프로필을 찾을 수 없습니다."),
+    UNAUTHORIZED_PROFILE_ACCESS(HttpStatus.UNAUTHORIZED, "PROFILE401", "해당 프로필에 대한 접근이 거부되었습니다."),
+    ALREADY_EXISTS_PARENT_PROFILE(HttpStatus.CONFLICT, "PROFILE4092", "부모 프로필이 이미 존재합니다."),
+    PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED, "PROFILE4012", "비밀번호가 일치하지 않습니다."),
+
     //s3 관련 에러
     NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "UPLOAD400", "파일의 이름에 확장자가 존재하지 않습니다."),
     PICTURE_EXTENSION_ERROR(HttpStatus.BAD_REQUEST, "PICTURE400", "이미지의 확장자가 잘못되었습니다."),

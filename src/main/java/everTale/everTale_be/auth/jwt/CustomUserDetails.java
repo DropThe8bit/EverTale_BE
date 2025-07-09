@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
     private final String username;
 
     public CustomUserDetails(User user) {
-        this.userId = user.getUserId();
+        this.userId = user.getId();
         this.email = user.getEmail();
         this.username = user.getUsername();
     }

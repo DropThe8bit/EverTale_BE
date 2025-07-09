@@ -1,5 +1,6 @@
 package everTale.everTale_be.domain.user.domain;
 
+import everTale.everTale_be.domain.profile.domain.Profile;
 import everTale.everTale_be.domain.user.domain.Enum.LoginProvider;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -7,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,7 +26,7 @@ public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long userId;
+    private Long id;
 
     @Column(nullable = false)
     private String username;
@@ -35,14 +39,12 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String phone;
 
-    private String institution;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "login_provider", nullable = false)
     private LoginProvider loginProvider;
 
-//    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Child> childs = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Profile> profiles = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "voice", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Voice> voices = new ArrayList<>();
@@ -52,17 +54,15 @@ public class User extends BaseTimeEntity {
                 String email,
                 String password,
                 String phone,
-                String institution,
                 LoginProvider loginProvider) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.phone = phone;
-        this.institution = institution;
         this.loginProvider = loginProvider;
     }
 
-    public void updateInstitution(String institution) {
-        this.institution = institution;
+    public void changePassword(String password) {
+        this.password = password;
     }
 }
