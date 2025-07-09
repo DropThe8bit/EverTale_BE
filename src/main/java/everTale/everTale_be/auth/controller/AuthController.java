@@ -2,16 +2,16 @@ package everTale.everTale_be.auth.controller;
 
 import everTale.everTale_be.auth.dto.request.*;
 import everTale.everTale_be.auth.dto.response.LoginTokenResponseDto;
-import everTale.everTale_be.auth.jwt.CustomUserDetails;
+import everTale.everTale_be.auth.jwt.JwtUtil;
 import everTale.everTale_be.auth.service.AuthService;
 import everTale.everTale_be.domain.profile.dto.response.ProfileEnterResponseDto;
 import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Auth", description = "인증 관련 API")
 public class AuthController {
 
+    private final JwtUtil jwtUtil;
     private final AuthService authService;
     private final ProfileService profileService;
 
@@ -66,16 +67,20 @@ public class AuthController {
     // 로그아웃
     @Operation(summary = "로그아웃", description = "현재 로그인한 사용자의 토큰을 만료 처리합니다.")
     @PostMapping("/logout")
-    public ApiResponse<String> logout(@AuthenticationPrincipal CustomUserDetails userDetails){
-        authService.logout(userDetails.getUserId());
+    public ApiResponse<String> logout(HttpServletRequest request){
+        String accessToken = jwtUtil.extractAccessToken(request);
+
+        authService.logout(accessToken);
         return ApiResponse.onSuccess("로그아웃이 성공적으로 완료되었습니다.");
     }
 
     // 회원 탈퇴
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 사용자를 탈퇴 처리합니다. 회원정보가 익명화됩니다.")
     @DeleteMapping("/withdraw")
-    public ApiResponse<String> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails){
-        authService.withdraw(userDetails.getUserId());
+    public ApiResponse<String> withdraw(HttpServletRequest request){
+        String accessToken = jwtUtil.extractAccessToken(request);
+
+        authService.withdraw(accessToken);
         return ApiResponse.onSuccess("회원 탈퇴가 성공적으로 완료되었습니다.");
     }
 }

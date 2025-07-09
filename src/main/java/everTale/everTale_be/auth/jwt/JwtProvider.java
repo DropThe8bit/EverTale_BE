@@ -12,8 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
@@ -58,10 +56,16 @@ public class JwtProvider {
 
         CustomProfileDetails customProfileDetails = new CustomProfileDetails(userId, profileId);
 
-        return new UsernamePasswordAuthenticationToken(customProfileDetails, null, List.of(() -> "ROLE_USER"));
+        return new UsernamePasswordAuthenticationToken(customProfileDetails, null, customProfileDetails.getAuthorities());
     }
 
-    public Claims getClaims(String token) {
-        return jwtUtil.extractClaims(token); // 토큰에서 claim 추출
+    public Long getUserIdFromToken(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        return claims.get("userId", Long.class);
+    }
+
+    public boolean isTokenContainsProfileId(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        return claims.containsKey("profileId");
     }
 }

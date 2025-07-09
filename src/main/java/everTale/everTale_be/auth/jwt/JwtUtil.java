@@ -1,10 +1,13 @@
 package everTale.everTale_be.auth.jwt;
 
 import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,12 +42,12 @@ public class JwtUtil {
     }
 
     // 프로필 선택 후, 프로필 ID가 추가된 JWT 토큰 생성
-    public String generateAccessTokenWithProfile(User user, Long profileId) {
+    public String generateAccessTokenWithProfile(Long userId, Long profileId) {
         Date generated = new Date(System.currentTimeMillis());
         Date accessTokenExpiredAt = new Date(generated.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("userId", user.getId())  // userId
+                .claim("userId", userId)  // userId
                 .claim("profileId", profileId)  // profileId 추가
                 .issuedAt(generated)
                 .expiration(accessTokenExpiredAt)
@@ -63,6 +66,14 @@ public class JwtUtil {
                 .expiration(refreshTokenExpiredAt)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public String extractAccessToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new UnAuthorizedHandler(ErrorStatus._UNAUTHORIZED);
+        }
+        return header.substring(7);
     }
 
     // Claim 추출
