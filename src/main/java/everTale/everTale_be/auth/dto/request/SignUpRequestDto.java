@@ -35,8 +35,4 @@ public class SignUpRequestDto {
     @NotBlank(message = "핸드폰 번호는 필수입니다.")
     @Schema(description = "전화번호", example = "010-1234-5678")
     private String phone;
-
-    @NotBlank(message = "기관명은 필수입니다.")
-    @Schema(description = "기관명", example = "새싹 유치원")
-    private String institution;
 }
