@@ -38,15 +38,13 @@ public class StoryService {
     // Scene 단일 조회
     @Transactional(readOnly = true)
     public SceneResponseDTO getSceneBySceneNum(Long storyId, int sceneNum) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene scene = findScene(storyId, sceneNum, profileId);
+        Scene scene = findScene(storyId, sceneNum);
         return SceneResponseDTO.from(scene);
     }
 
     @Transactional
     public String updateSceneContent(Long storyId, int sceneNum, String updatedContent) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene scene = findScene(storyId, sceneNum, profileId);
+        Scene scene = findScene(storyId, sceneNum);
         scene.updateContent(updatedContent);
         return updatedContent;
     }
@@ -55,8 +53,7 @@ public class StoryService {
     // 스토리 삭제
     @Transactional
     public void deleteStoryWithScenes(Long storyId) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Story story = findStory(storyId, profileId);
+        Story story = findStory(storyId);
         storyRepository.delete(story);
     }
 
@@ -77,8 +74,7 @@ public class StoryService {
     public void saveInitialCharacterInfo(Long storyId,
                                          StoryRequestDTO.StoryCharacterInfoRequestDTO request,
                                          MultipartFile initCharacterImage) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Story story = findStory(storyId, profileId);
+        Story story = findStory(storyId);
         story.updateTitle(request.getTitle());
 
         // StoryCharacter 생성
@@ -108,9 +104,8 @@ public class StoryService {
     // 초기 줄거리 생성
     @Transactional
     public String generateInitStory(Long storyId, StoryRequestDTO.StoryWorldViewRequestDTO request) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
         // 1. storyId로 스토리 조회
-        Story story = findStory(storyId, profileId);
+        Story story = findStory(storyId);
 
         // 2. 연결된 캐릭터 가져오기
         StoryCharacter storyCharacter = story.getCharacter();
@@ -158,9 +153,8 @@ public class StoryService {
     // 이전 장면 기반 다음 줄거리 생성
     @Transactional
     public String generateNextStory(Long storyId, int sceneNum) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
         // 1. 이전 줄거리 조회
-        Scene prevScene = findScene(storyId, sceneNum-1,profileId);
+        Scene prevScene = findScene(storyId, sceneNum-1);
         String previousContent = prevScene.getContent();
 
         // 2. Story & Character 조회
@@ -201,16 +195,14 @@ public class StoryService {
     // 이전 장면 기반 질문 생성
     @Transactional(readOnly = true)
     public String generateQuestionFromPreviousScene(Long storyId, int sceneNum) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene prevScene = findScene(storyId, sceneNum - 1, profileId);
+        Scene prevScene = findScene(storyId, sceneNum - 1);
         return storyApiClient.callFastApiForQuestion(prevScene.getContent());
     }
 
     // 아이의 대답 기반 다음 줄거리 생성
     @Transactional
     public String generateNextStoryWithAnswer(Long storyId, int sceneNum, String answer) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene prevScene = findScene(storyId, sceneNum - 1, profileId);
+        Scene prevScene = findScene(storyId, sceneNum - 1);
 
         String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
 
@@ -226,8 +218,7 @@ public class StoryService {
     // 줄거리 및 아이그림 기반 그림 생성
     @Transactional
     public String generateImageFromSketch(Long storyId, int sceneNum, MultipartFile sketch) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene scene = findScene(storyId, sceneNum, profileId);
+        Scene scene = findScene(storyId, sceneNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, scene.getStory().getGenre().name());
@@ -239,8 +230,7 @@ public class StoryService {
     // 줄거리 기반 그림 생성
     @Transactional
     public String generateImageFromPrompt(Long storyId, int sceneNum) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
-        Scene scene = findScene(storyId, sceneNum, profileId);
+        Scene scene = findScene(storyId, sceneNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, scene.getStory().getGenre().name());
@@ -249,11 +239,13 @@ public class StoryService {
         return imageUrl;
     }
 
-    private Scene findScene(Long storyId, int sceneNum, Long profileId){
+    private Scene findScene(Long storyId, int sceneNum){
+        Long profileId = userHelper.getAuthenticatedProfileId();
         return sceneRepository.findByStoryIdAndPageAndStoryProfileId(storyId, sceneNum, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
     }
-    private Story findStory(Long storyId, Long profileId) {
+    private Story findStory(Long storyId) {
+        Long profileId = userHelper.getAuthenticatedProfileId();
         return storyRepository.findByIdAndProfileId(storyId, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
     }
