@@ -148,7 +148,6 @@ public class StoryService {
                 .build();
 
         story.addScene(scene);
-        storyRepository.save(story);
 
         // 7. 줄거리 반환
         return initStory;
@@ -195,7 +194,6 @@ public class StoryService {
                 .content(nextContent)
                 .build();
         story.addScene(newScene);
-        storyRepository.save(story);
 
         return nextContent;
     }
@@ -223,7 +221,6 @@ public class StoryService {
                 .content(nextContent)
                 .build();
         story.addScene(newScene);
-        storyRepository.save(story);
         return nextContent;
     }
     // 줄거리 및 아이그림 기반 그림 생성
