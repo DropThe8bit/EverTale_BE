@@ -15,12 +15,10 @@ public class Scene {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     private String content;
 
     private int page;
 
-    @Setter
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +30,11 @@ public class Scene {
     @JsonManagedReference
     private Quiz quiz;
 
+    void setStoryInternal(Story story) {
+        this.story = story;
+    }
+    public void updateContent(String content) {this.content = content;}
+    public void updateImageUrl(String imageUrl) {this.imageUrl = imageUrl;}
 
 }
 
