@@ -8,6 +8,7 @@ import everTale.everTale_be.domain.character.repository.StoryCharacterRepository
 import everTale.everTale_be.domain.profile.domain.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
 import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
@@ -16,6 +17,8 @@ import everTale.everTale_be.domain.story.repository.StoryRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.domain.story.external.StoryApiClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -248,5 +251,18 @@ public class StoryService {
         Long profileId = userHelper.getAuthenticatedProfileId();
         return storyRepository.findByIdAndProfileId(storyId, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+    }
+
+    // 모두의 책장
+    public StoryCollectionResponseDto getAllStories(Pageable pageable){
+        Page<Story> stories = storyRepository.findAll(pageable);
+        return StoryCollectionResponseDto.from(stories);
+    }
+
+    // 나의 책장
+    public StoryCollectionResponseDto getMyStories(Pageable pageable) {
+        Long profileId = userHelper.getAuthenticatedProfileId();
+        Page<Story> stories = storyRepository.findByProfileId(profileId, pageable);
+        return StoryCollectionResponseDto.from(stories);
     }
 }

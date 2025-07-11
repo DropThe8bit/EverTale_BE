@@ -25,8 +25,7 @@ public class Scene {
     @JoinColumn(name = "story_id", nullable = false)
     private Story story;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "quiz_id")
+    @OneToOne(mappedBy = "scene", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Quiz quiz;
 
@@ -35,6 +34,13 @@ public class Scene {
     }
     public void updateContent(String content) {this.content = content;}
     public void updateImageUrl(String imageUrl) {this.imageUrl = imageUrl;}
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
+        if (quiz != null && quiz.getScene() != this) {
+            quiz.setScene(this);
+        }
+    }
 
 }
 

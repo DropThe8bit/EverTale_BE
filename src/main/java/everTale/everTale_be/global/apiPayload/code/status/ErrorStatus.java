@@ -21,11 +21,12 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_REFRESH_TOKEN(HttpStatus.NOT_FOUND, "TOKEN404", "리프레시 토큰이 존재하지 않습니다."),
 
     // User 관련 에러
+    UNAUTHORIZED_USER_ACCESS(HttpStatus.UNAUTHORIZED, "USER401", "해당 유저에 대한 접근이 거부되었습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER4002", "닉네임은 필수입니다."),
     ALREADY_EXISTS_EMAIL(HttpStatus.CONFLICT, "USER409", "이미 존재하는 이메일입니다."),
-    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER401", "이메일 또는 비밀번호가 일치하지 않습니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER4012", "이메일 또는 비밀번호가 일치하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "USER4012", "유효하지 않은 리프레시 토큰입니다."),
-    BLOCKED_TOKEN(HttpStatus.FORBIDDEN, "USER403", "블랙리스트에 있는 토큰입니다. 다시 로그인 해주세요."),
+    BLOCKED_TOKEN(HttpStatus.BAD_REQUEST, "USER400", "블랙리스트에 있는 토큰입니다. 다시 로그인 해주세요."),
 
     // Profile 관련 에러
     ALREADY_EXISTS_PROFILE(HttpStatus.CONFLICT, "PROFILE409", "중복되는 프로필 이름입니다."),
@@ -52,7 +53,13 @@ public enum ErrorStatus implements BaseErrorCode {
 
 
     // EasterEgg 관련
-    EASTER_EGG_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG400","이스터에그 편지를 찾을 수 없습니다.")
+    EASTER_EGG_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG400","이스터에그 편지를 찾을 수 없습니다."),
+
+    //Quiz 관련
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND,"QUIZ400","퀴즈를 찾을 수 없습니다."),
+    ENABLE_TO_GENERATE_QUIZ(HttpStatus.BAD_REQUEST,"FASTAPI505","퀴즈 생성 중 오류가 발생했습니다."),
+    INVALID_QUIZ_ANSWER_NUM(HttpStatus.BAD_REQUEST,"QUIZ401","퀴즈 정답으로 선택할 수 없는 값입니다.")
+
 
     ;
 

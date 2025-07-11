@@ -5,6 +5,7 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
 import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Story {
+public class Story extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,7 +45,7 @@ public class Story {
     private List<Scene> storyScenes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id", updatable = false, nullable = false)
+    @JoinColumn(name = "author_id", updatable = false, nullable = false)
     private Profile profile;
 
     public void setCharacter(StoryCharacter character) {
