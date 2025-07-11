@@ -113,20 +113,20 @@ public class AuthService {
 
     // 로그아웃
     public void logout(String accessToken) {
-        User user = userHelper.getRootUser();
+        Long userId = userHelper.getRootUserId();
         tokenAuthService.validateNotBlackListed(accessToken);
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "LOGOUT");
-        tokenAuthService.deleteRefreshToken(user.getId());
+        tokenAuthService.deleteRefreshToken(userId);
     }
 
     // 회원 탈퇴
     public void withdraw(String accessToken) {
-        User user = userHelper.getRootUser();
+        Long userId = userHelper.getRootUserId();
         tokenAuthService.validateNotBlackListed(accessToken);
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
-        tokenAuthService.deleteRefreshToken(user.getId());
-        userRepository.anonymizeUser(user.getId());
+        tokenAuthService.deleteRefreshToken(userId);
+        userRepository.anonymizeUser(userId);
     }
 }

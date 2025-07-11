@@ -48,6 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (BadRequestHandler e) {
             setErrorResponse(response, e.getErrorReasonHttpStatus().getCode(), e.getErrorReasonHttpStatus().getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
