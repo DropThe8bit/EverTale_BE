@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class CharacterController {
 
     @Operation(summary = "내가 만든 스토리의 캐릭터 목록 조회", description = "내가 작성한 스토리에 등장하는 모든 캐릭터를 페이지네이션 형태로 조회합니다.")
     @GetMapping
-    public ApiResponse<CharacterCollectionResponseDto> getMyCharacters(Pageable pageable){
+    public ApiResponse<CharacterCollectionResponseDto> getMyCharacters(@PageableDefault(size = 8) Pageable pageable){
         CharacterCollectionResponseDto responseDto = characterService.getMyCharacters(pageable);
         return ApiResponse.onSuccess(responseDto);
     }
