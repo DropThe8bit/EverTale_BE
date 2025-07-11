@@ -4,6 +4,7 @@ import everTale.everTale_be.domain.character.dto.CharacterCollectionResponseDto;
 import everTale.everTale_be.domain.character.dto.CharacterDetailResponseDto;
 import everTale.everTale_be.domain.character.service.CharacterService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class CharacterController {
     }
 
     @GetMapping("/{characterId}")
-    public ApiResponse<CharacterDetailResponseDto> getCharacterDetails(@PathVariable("characterId") Long characterId){
+    public ApiResponse<CharacterDetailResponseDto> getCharacterDetails(@Parameter(description = "캐릭터 ID") @PathVariable("characterId") Long characterId){
         CharacterDetailResponseDto responseDto = characterService.getCharacterDetail(characterId);
         return ApiResponse.onSuccess(responseDto);
     }
