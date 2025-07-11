@@ -71,7 +71,7 @@ public class QuizService {
     @Transactional
     public void deleteAllQuizzesByStoryId(Long storyId) {
         Long profileId = userHelper.getAuthenticatedProfileId();
-        quizRepository.deleteBySceneStoryIdAndSceneStoryProfileId(storyId, profileId);
+        quizRepository.deleteByStoryIdAndProfileId(storyId, profileId);
     }
 
     // quiz 정답
