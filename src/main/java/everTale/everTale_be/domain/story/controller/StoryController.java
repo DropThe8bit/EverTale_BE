@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.story.controller;
 
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
 import everTale.everTale_be.domain.story.service.StoryService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
@@ -8,11 +9,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.crypto.spec.DESedeKeySpec;
 
 @RestController
 @RequiredArgsConstructor
@@ -128,4 +128,17 @@ public class StoryController {
         return ApiResponse.onSuccess(image);
     }
 
+    @Operation(summary = "전체 스토리 목록 조회", description = "모든 작가들의 스토리를 페이징 형식으로 조회합니다.")
+    @GetMapping
+    public ApiResponse<StoryCollectionResponseDto> getAllStories(Pageable pageable) {
+        StoryCollectionResponseDto responseDto = storyService.getAllStories(pageable);
+        return ApiResponse.onSuccess(responseDto);
+    }
+
+    @Operation(summary = "내 스토리 목록 조회", description = "현재 접속한 프로필 사용자의 스토리를 페이징 형식으로 조회합니다.")
+    @GetMapping("/my")
+    public ApiResponse<StoryCollectionResponseDto> getMyStories(Pageable pageable) {
+        StoryCollectionResponseDto responseDto = storyService.getMyStories(pageable);
+        return ApiResponse.onSuccess(responseDto);
+    }
 }

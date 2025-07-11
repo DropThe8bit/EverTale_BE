@@ -5,7 +5,10 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
+import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
 import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
@@ -14,6 +17,8 @@ import everTale.everTale_be.domain.story.repository.StoryRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.domain.story.external.StoryApiClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +36,7 @@ public class StoryService {
     private final StoryCharacterRepository storyCharacterRepository;
     private final PersonalityRepository personalityRepository;
     private final StoryApiClient storyApiClient;
+    private final UserHelper userHelper;
 
     // Scene 단일 조회
     @Transactional(readOnly = true)
@@ -251,5 +257,18 @@ public class StoryService {
 
         scene.setImageUrl(imageUrl);
         return imageUrl;
+    }
+
+    // 모두의 책장
+    public StoryCollectionResponseDto getAllStories(Pageable pageable){
+        Page<Story> stories = storyRepository.findAll(pageable);
+        return StoryCollectionResponseDto.from(stories);
+    }
+
+    // 나의 책장
+    public StoryCollectionResponseDto getMyStories(Pageable pageable) {
+        Profile profile = userHelper.getAuthenticatedProfile();
+        Page<Story> stories = storyRepository.findByProfileId(profile.getId(), pageable);
+        return StoryCollectionResponseDto.from(stories);
     }
 }

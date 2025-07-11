@@ -45,7 +45,7 @@ public class Story {
     private List<Scene> storyScenes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id", updatable = false, nullable = false)
+    @JoinColumn(name = "author_id", updatable = false, nullable = false)
     private Profile profile;
 
     public void setCharacter(StoryCharacter character) {
