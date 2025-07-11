@@ -26,7 +26,6 @@ public class Story {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Setter
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
@@ -60,4 +59,12 @@ public class Story {
     }
 
 
+
+    public void updateGenre(Genre genre) {this.genre = genre;}
+    public void addScene(Scene scene) {
+        storyScenes.add(scene);
+        if (scene.getStory() != this) {
+            scene.setStoryInternal(this);
+        }
+    }
 }
