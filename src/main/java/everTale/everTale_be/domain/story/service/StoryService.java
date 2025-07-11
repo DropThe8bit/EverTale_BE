@@ -103,7 +103,7 @@ public class StoryService {
 
     // 초기 줄거리 생성
     @Transactional
-    public String generateInitStory(Long storyId, StoryRequestDTO.StoryWorldViewRequestDTO request) {
+    public String generateInitScene(Long storyId, StoryRequestDTO.StoryWorldViewRequestDTO request) {
         // 1. storyId로 스토리 조회
         Story story = findStory(storyId);
 
@@ -152,7 +152,7 @@ public class StoryService {
 
     // 이전 장면 기반 다음 줄거리 생성
     @Transactional
-    public String generateNextStory(Long storyId, int sceneNum) {
+    public String generateNextScene(Long storyId, int sceneNum) {
         // 1. 이전 줄거리 조회
         Scene prevScene = findScene(storyId, sceneNum-1);
         String previousContent = prevScene.getContent();
@@ -201,7 +201,7 @@ public class StoryService {
 
     // 아이의 대답 기반 다음 줄거리 생성
     @Transactional
-    public String generateNextStoryWithAnswer(Long storyId, int sceneNum, String answer) {
+    public String generateNextSceneWithAnswer(Long storyId, int sceneNum, String answer) {
         Scene prevScene = findScene(storyId, sceneNum - 1);
 
         String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
