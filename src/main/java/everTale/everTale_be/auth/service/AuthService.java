@@ -4,7 +4,9 @@ import everTale.everTale_be.auth.dto.request.LoginRequestDto;
 import everTale.everTale_be.auth.dto.request.SignUpRequestDto;
 import everTale.everTale_be.auth.dto.response.LoginTokenResponseDto;
 import everTale.everTale_be.auth.dto.response.UserInfoResponseDto;
+import everTale.everTale_be.auth.jwt.JwtProvider;
 import everTale.everTale_be.auth.jwt.JwtUtil;
+import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.user.domain.Enum.LoginProvider;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
@@ -12,7 +14,6 @@ import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
-import io.jsonwebtoken.Claims;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,24 +23,26 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
     private final TokenAuthService tokenAuthService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final NaverService naverService;
+    private final UserHelper userHelper;
 
     // 일반 회원가입
     public void signup(SignUpRequestDto requestDto) {
-        boolean exists = userRepository.existsByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL);
 
+        boolean exists = userRepository.existsByEmailAndLoginProvider(requestDto.getEmail(), LoginProvider.LOCAL);
         if (exists) {
             throw new BadRequestHandler(ErrorStatus.ALREADY_EXISTS_EMAIL);
         }
+
         User user = User.builder()
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .username(requestDto.getUsername())
                 .phone(requestDto.getPhone())
-                .institution(requestDto.getInstitution())
                 .loginProvider(LoginProvider.LOCAL) // 일반 회원가입은 LOCAL
                 .build();
         userRepository.save(user);
@@ -56,7 +59,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        tokenAuthService.saveRefreshToken(user.getUserId(), refreshToken);
+        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
 
         return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
     }
@@ -70,7 +73,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        tokenAuthService.saveRefreshToken(user.getUserId(), refreshToken);
+        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
 
         return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
     }
@@ -86,7 +89,6 @@ public class AuthService {
                 .username(responseDto.getResponse().getName())
                 .phone(responseDto.getResponse().getMobile())
                 .password("")
-                .institution(null)
                 .loginProvider(LoginProvider.NAVER)
                 .build();
         return userRepository.save(user);
@@ -94,35 +96,37 @@ public class AuthService {
 
     // 토큰 재발급
     public LoginTokenResponseDto reissue(String refreshToken){
-        Claims claims = jwtUtil.extractClaims(refreshToken);
-        Long userId = claims.get("userId", Long.class);
-
-        String storedRefreshToken = tokenAuthService.getRefreshToken(userId);
-        if (!storedRefreshToken.equals(refreshToken)) {
-            throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
-        }
+        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
+        tokenAuthService.validateRefreshToken(userId, refreshToken);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
-        String newAccessToken = jwtUtil.generateAccessToken(user);
-        String newRefreshToken = jwtUtil.generateRefreshToken(user);
 
         tokenAuthService.deleteRefreshToken(userId);
+
+        String newAccessToken = jwtUtil.generateAccessToken(user);
+        String newRefreshToken = jwtUtil.generateRefreshToken(user);
         tokenAuthService.saveRefreshToken(userId, newRefreshToken);
 
         return LoginTokenResponseDto.of(user, newAccessToken, newRefreshToken, jwtUtil);
     }
 
     // 로그아웃
-    public void logout(Long userId) {
-        tokenAuthService.deleteRefreshToken(userId);
+    public void logout(String accessToken) {
+        User user = userHelper.getRootUser();
+        tokenAuthService.validateNotBlackListed(accessToken);
+
+        tokenAuthService.addToBlackListForAccessToken(accessToken, "LOGOUT");
+        tokenAuthService.deleteRefreshToken(user.getId());
     }
 
     // 회원 탈퇴
-    public void withdraw(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
-        userRepository.anonymizeUser(userId);
-        tokenAuthService.deleteRefreshToken(userId);
+    public void withdraw(String accessToken) {
+        User user = userHelper.getRootUser();
+        tokenAuthService.validateNotBlackListed(accessToken);
+
+        tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
+        tokenAuthService.deleteRefreshToken(user.getId());
+        userRepository.anonymizeUser(user.getId());
     }
 }

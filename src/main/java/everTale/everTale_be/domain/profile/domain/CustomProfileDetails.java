@@ -1,25 +1,19 @@
-package everTale.everTale_be.auth.jwt;
+package everTale.everTale_be.domain.profile.domain;
 
-import everTale.everTale_be.domain.user.domain.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Collections;
 
 @Getter
-public class CustomUserDetails implements UserDetails {
+@AllArgsConstructor
+public class CustomProfileDetails implements UserDetails {
 
     private final Long userId;
-    private final String email;
-    private final String username;
-
-    public CustomUserDetails(User user) {
-        this.userId = user.getId();
-        this.email = user.getEmail();
-        this.username = user.getUsername();
-    }
+    private final Long profileId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -28,31 +22,32 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null; // JWT에서는 비밀번호 필요 없음
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return null;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return false;
     }
 }
+

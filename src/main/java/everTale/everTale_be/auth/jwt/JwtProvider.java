@@ -1,19 +1,16 @@
 package everTale.everTale_be.auth.jwt;
 
+import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
-import everTale.everTale_be.global.apiPayload.exception.GeneralException;
+import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -41,10 +38,34 @@ public class JwtProvider {
         Long userId = claims.get("userId", Long.class);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
 
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+    }
+
+    // profileId까지 들어 있는 토큰일 경우 사용
+    public Authentication getAuthenticationWithProfile(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        Long userId = claims.get("userId", Long.class);
+        Long profileId = claims.get("profileId", Long.class);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
+
+        CustomProfileDetails customProfileDetails = new CustomProfileDetails(userId, profileId);
+
+        return new UsernamePasswordAuthenticationToken(customProfileDetails, null, customProfileDetails.getAuthorities());
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        return claims.get("userId", Long.class);
+    }
+
+    public boolean isTokenContainsProfileId(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        return claims.containsKey("profileId");
     }
 }
