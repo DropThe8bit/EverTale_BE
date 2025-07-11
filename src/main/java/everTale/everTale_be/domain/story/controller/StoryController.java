@@ -75,14 +75,14 @@ public class StoryController {
             @PathVariable Long storyId,
             @RequestBody StoryRequestDTO.StoryWorldViewRequestDTO request
     ) {
-        String initStory = storyService.generateInitStory(storyId, request);
+        String initStory = storyService.generateInitScene(storyId, request);
         return ApiResponse.onSuccess(initStory);
     }
 
     @Operation(summary = "다음 줄거리 생성 API", description = "이전 줄거리를 기반으로 다음 줄거리를 생성한다.")
     @PostMapping("/{storyId}/scene/{sceneNum}")
     public ApiResponse<String> createNextStory(@PathVariable Long storyId, @PathVariable int sceneNum) {
-        String nextStory = storyService.generateNextStory(storyId, sceneNum);
+        String nextStory = storyService.generateNextScene(storyId, sceneNum);
         return ApiResponse.onSuccess(nextStory);
     }
 
@@ -100,7 +100,7 @@ public class StoryController {
             @Parameter(description = "장면 번호") @PathVariable int sceneNum,
             @RequestBody StoryRequestDTO.StoryAnswerRequestDTO request
     ) {
-        String nextStory = storyService.generateNextStoryWithAnswer(storyId, sceneNum, request.getAnswer());
+        String nextStory = storyService.generateNextSceneWithAnswer(storyId, sceneNum, request.getAnswer());
         return ApiResponse.onSuccess(nextStory);
     }
     @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 줄거리를 기반으로 이미지를 생성합니다.")
