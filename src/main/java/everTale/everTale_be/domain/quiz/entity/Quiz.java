@@ -18,16 +18,34 @@ public class Quiz {
 
     private String question;
 
-    private String option_1;
-    private String option_2;
-    private String option_3;
-    private String option_4;
+    private String option1;
+    private String option2;
+    private String option3;
+    private String option4;
 
     @Enumerated(EnumType.STRING)
-    private Answer answer;
+    private Answer correctAnswer;
 
-    @OneToOne(mappedBy = "quiz")
+    @Enumerated(EnumType.STRING)
+    private Answer selectedAnswer;
+
+    @OneToOne
+    @JoinColumn(name = "scene_id")
     @JsonBackReference
     private Scene scene;
 
+    boolean solvedCorrectly;
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
+        if (scene.getQuiz() != this) {
+            scene.setQuiz(this);
+        }
+    }
+
+    public boolean checkAndSubmitAnswer(int selectedAnswer) {
+        this.selectedAnswer = Answer.fromNumber(selectedAnswer);
+        this.solvedCorrectly = (this.correctAnswer.getNumber() == selectedAnswer);
+        return this.solvedCorrectly;
+    }
 }

@@ -28,7 +28,7 @@ public class LoginTokenResponseDto {
                 .refreshToken(refreshToken)
                 .accessExp(System.currentTimeMillis() + jwtUtil.getAccessTokenExpireTime())
                 .refreshExp(System.currentTimeMillis() + jwtUtil.getRefreshTokenExpireTime())
-                .userId(user.getUserId())
+                .userId(user.getId())
                 .build();
     }
 }
