@@ -3,18 +3,17 @@ package everTale.everTale_be.domain.profile.domain;
 import everTale.everTale_be.domain.profile.domain.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileUpdateRequestDto;
 import everTale.everTale_be.domain.profile.dto.request.ParentProfileUpdateRequestDto;
+import everTale.everTale_be.domain.quiz.entity.enums.Badge;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.user.domain.User;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Getter
@@ -28,6 +27,14 @@ public class Profile extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String name;
+
+    // 퀴즈 칭호 관련
+    @Column(name = "quiz_solved_count", nullable = false)
+    private int quizSolvedCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Badge badge = Badge.SHY_SPROUT;
 
     // 자녀용 필드
     @Column(name = "birth_date")
@@ -59,6 +66,7 @@ public class Profile extends BaseTimeEntity {
                    String phone,
                    String email,
                    ProfileType profileType,
+                   Badge badge,
                    User user) {
         this.name = name;
         this.birthDate = birthDate;
@@ -67,6 +75,8 @@ public class Profile extends BaseTimeEntity {
         this.email = email;
         this.profileType = profileType;
         this.user = user;
+        this.badge = (badge != null) ? badge : Badge.fromSolvedCount(this.quizSolvedCount);
+
     }
 
     public void updateChild(ChildProfileUpdateRequestDto requestDto) {
@@ -79,5 +89,13 @@ public class Profile extends BaseTimeEntity {
         this.name = dto.getName();
         this.phone = dto.getPhone();
         this.email = dto.getEmail();
+    }
+
+    public void incrementQuizSolvedCount() {
+        this.quizSolvedCount++;
+    }
+
+    public void refreshBadge() {
+        this.badge = Badge.fromSolvedCount(this.quizSolvedCount);
     }
 }
