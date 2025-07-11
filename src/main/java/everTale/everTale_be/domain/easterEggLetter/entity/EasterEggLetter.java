@@ -20,11 +20,23 @@ public class EasterEggLetter extends BaseTimeEntity{
 
     private String content;
 
-    private String imageUrl;
+    private int imageNum;
 
-    @OneToOne(mappedBy = "easterEggLetter")
+    @OneToOne
+    @JoinColumn(name = "story_id")
     @JsonBackReference
     private Story story;
 
     private LocalDateTime availableAt;
+
+    public void updateStory(Story story) {
+        this.story = story;
+    }
+
+    public void updateLetter(String content, int imageUrl, LocalDateTime availableAt) {
+        this.content = content;
+        this.imageNum = imageUrl;
+        this.availableAt = availableAt;
+    }
+
 }
