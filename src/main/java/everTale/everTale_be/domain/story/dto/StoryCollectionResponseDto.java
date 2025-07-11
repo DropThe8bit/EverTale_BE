@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Builder
-@Schema(description = "책장 응답 DTO")
+@Schema(description = "스토리 책장 응답 DTO")
 public class StoryCollectionResponseDto {
 
     @Schema(description = "스토리 요약 정보 리스트")
