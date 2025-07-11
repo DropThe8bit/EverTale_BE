@@ -9,6 +9,7 @@ import everTale.everTale_be.domain.profile.dto.response.*;
 import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -51,7 +52,7 @@ public class ProfileController {
     // 프로필 접속
     @Operation(summary = "프로필 접속", description = "선택한 프로필에 접속합니다.")
     @PostMapping("/{profileId}")
-    public ApiResponse<ProfileEnterResponseDto> enterProfile(@PathVariable("profileId") Long profileId){
+    public ApiResponse<ProfileEnterResponseDto> enterProfile(@Parameter(description = "프로필 ID") @PathVariable("profileId") Long profileId){
         ProfileEnterResponseDto responseDto = profileService.enterProfile(profileId);
         return ApiResponse.onSuccess(responseDto);
     }
