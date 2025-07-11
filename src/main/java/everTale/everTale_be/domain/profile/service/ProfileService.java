@@ -67,8 +67,8 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public ProfileListResponseDto getProfiles(){
-        User rootUser = userHelper.getRootUser();
-        List<Profile> profiles = profileRepository.findAllByUserId(rootUser.getId());
+        Long userId = userHelper.getRootUserId();
+        List<Profile> profiles = profileRepository.findAllByUserId(userId);
 
         return ProfileListResponseDto.from(profiles);
     }
@@ -86,13 +86,13 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public ProfileEnterResponseDto enterProfile(Long profileId){
-        User rootUser = userHelper.getRootUser();
+        Long userId = userHelper.getRootUserId();
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_PROFILE));
-        if (profile.getUser().getId() != rootUser.getId()) {
+        if (profile.getUser().getId() != userId) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
-        String newAccessToken = jwtUtil.generateAccessTokenWithProfile(rootUser.getId(), profileId);
+        String newAccessToken = jwtUtil.generateAccessTokenWithProfile(userId, profileId);
         return ProfileEnterResponseDto.from(profile, newAccessToken);
     }
 
@@ -107,8 +107,8 @@ public class ProfileService {
     }
 
     public void updatePassword(PasswordUpdateRequestDto requestDto) {
-        Profile profile = userHelper.getAuthenticatedProfile();
-        User rootUser = userRepository.findByProfiles_Id(profile.getId())
+        Long profileId = userHelper.getAuthenticatedProfileId();
+        User rootUser = userRepository.findByProfiles_Id(profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
 
         // 기존 비밀번호 확인
@@ -139,9 +139,9 @@ public class ProfileService {
 
     // 프로필 삭제 (회원 탈퇴 X)
     public void deleteProfile(String accessToken){
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Long profileId = userHelper.getAuthenticatedProfileId();
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
-        profileRepository.anonymizeProfile(profile.getId());
+        profileRepository.anonymizeProfile(profileId);
     }
 }

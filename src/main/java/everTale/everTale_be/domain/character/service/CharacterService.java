@@ -22,8 +22,8 @@ public class CharacterService {
 
     // 주인공 모음집 조회
     public CharacterCollectionResponseDto getMyCharacters(Pageable pageable){
-        Profile profile = userHelper.getAuthenticatedProfile();
-        Page<StoryCharacter> characters = characterRepository.findByStoryProfileId(profile.getId(), pageable);
+        Long profileId = userHelper.getAuthenticatedProfileId();
+        Page<StoryCharacter> characters = characterRepository.findByStoryProfileId(profileId, pageable);
         return CharacterCollectionResponseDto.from(characters);
     }
 

@@ -261,8 +261,8 @@ public class StoryService {
 
     // 나의 책장
     public StoryCollectionResponseDto getMyStories(Pageable pageable) {
-        Profile profile = userHelper.getAuthenticatedProfile();
-        Page<Story> stories = storyRepository.findByProfileId(profile.getId(), pageable);
+        Long profileId = userHelper.getAuthenticatedProfileId();
+        Page<Story> stories = storyRepository.findByProfileId(profileId, pageable);
         return StoryCollectionResponseDto.from(stories);
     }
 }
