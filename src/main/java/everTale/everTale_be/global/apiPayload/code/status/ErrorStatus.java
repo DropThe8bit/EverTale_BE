@@ -55,10 +55,15 @@ public enum ErrorStatus implements BaseErrorCode {
     // EasterEgg 관련
     EASTER_EGG_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG400","이스터에그 편지를 찾을 수 없습니다."),
 
+    //Quiz 관련
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND,"QUIZ400","퀴즈를 찾을 수 없습니다."),
+    ENABLE_TO_GENERATE_QUIZ(HttpStatus.BAD_REQUEST,"FASTAPI505","퀴즈 생성 중 오류가 발생했습니다."),
+    INVALID_QUIZ_ANSWER_NUM(HttpStatus.BAD_REQUEST,"QUIZ401","퀴즈 정답으로 선택할 수 없는 값입니다."),
+
     // Voice 관련 에러
     ENABLE_TO_REGISTER_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI505", "Voice 등록 중 오류가 발생했습니다."),
     UNABLE_TO_GENERATE_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI506", "음성 재생 중 오류가 발생했습니다."),
-    NOT_FOUND_VOICE(HttpStatus.NOT_FOUND, "VOICE404", "해당 Voice를 찾을 수 없습니다.")
+    NOT_FOUND_VOICE(HttpStatus.NOT_FOUND, "VOICE404", "해당 Voice를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
