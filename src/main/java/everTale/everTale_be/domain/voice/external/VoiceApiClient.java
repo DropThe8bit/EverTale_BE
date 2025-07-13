@@ -1,7 +1,6 @@
 package everTale.everTale_be.domain.voice.external;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.utils.MultipartInputStreamFileResource;
@@ -17,16 +16,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -35,7 +26,7 @@ public class VoiceApiClient {
 
     private final RestTemplate restTemplate;
 
-    public String callFastApiToRegisterVoiceFile(MultipartFile file, String voiceName) {
+    public String callFastApiToRegisterVoice(MultipartFile file, String voiceName) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -83,14 +74,38 @@ public class VoiceApiClient {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();  // 파일 저장 X
             } else {
-                throw new BadRequestHandler(ErrorStatus.UNABLE_TO_GENERATE_VOICE);
+                throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_VOICE);
             }
 
         } catch (Exception e) {
-            throw new BadRequestHandler(ErrorStatus.UNABLE_TO_GENERATE_VOICE);
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_VOICE);
         }
     }
 
+    public void callFastApiToDeleteVoice(String voiceKey) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("voice_key", voiceKey);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "http://localhost:8000/ai/voice/delete",
+                    requestEntity,
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new BadRequestHandler(ErrorStatus.ENABLE_TO_DELETE_VOICE);
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestHandler(ErrorStatus.ENABLE_TO_DELETE_VOICE);
+        }
+    }
 
     @lombok.Data
     static class FastApiVoiceResponseDto {

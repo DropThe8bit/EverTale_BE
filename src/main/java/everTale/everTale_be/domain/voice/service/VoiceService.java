@@ -9,6 +9,7 @@ import everTale.everTale_be.domain.voice.external.VoiceApiClient;
 import everTale.everTale_be.domain.voice.repository.VoiceRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
+import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +40,7 @@ public class VoiceService {
         User rootUser = findRootUserByProfile(profileId);
 
         String voiceName = extractNameWithoutExtension(file.getOriginalFilename());
-        String key = voiceApiClient.callFastApiToRegisterVoiceFile(file, voiceName);
+        String key = voiceApiClient.callFastApiToRegisterVoice(file, voiceName);
 
         Voice voice = Voice.builder()
                 .name(voiceName)
@@ -66,7 +67,14 @@ public class VoiceService {
     }
 
     public void deleteVoice(Long voiceId){
+        Long profileId = userHelper.getAuthenticatedProfileId();
+        User rootUser = findRootUserByProfile(profileId);
         Voice voice = findVoice(voiceId);
+
+        if (!voice.getUser().getId().equals(rootUser.getId())) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_USER_ACCESS);
+        }
+        voiceApiClient.callFastApiToDeleteVoice(voice.getVoiceKey());
         voiceRepository.delete(voice);
     }
 
