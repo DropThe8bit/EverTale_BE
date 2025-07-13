@@ -265,4 +265,15 @@ public class StoryService {
         Page<Story> stories = storyRepository.findByProfileId(profileId, pageable);
         return StoryCollectionResponseDto.from(stories);
     }
+
+    public String getSceneText(Long storyId, Long sceneId) {
+        boolean isStoryExists = storyRepository.existsById(storyId);
+        if (!isStoryExists){
+            throw new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND);
+        }
+        Scene scene = sceneRepository.findByIdAndStoryId(sceneId, storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+
+        return scene.getContent();
+    }
 }

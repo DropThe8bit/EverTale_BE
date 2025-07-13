@@ -18,4 +18,6 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
 
     // 내가 쓴 스토리 조회
     Page<Story> findByProfileId(Long profileId, Pageable pageable);
+
+    boolean existsById(Long storyId);
 }
