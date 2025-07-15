@@ -47,7 +47,7 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<Profile> profiles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "voice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Voice> voices = new ArrayList<>();
 
     @Builder

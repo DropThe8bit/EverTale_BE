@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.story.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
 import everTale.everTale_be.domain.quiz.entity.Quiz;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,10 @@ public class Scene {
     @JsonManagedReference
     private Quiz quiz;
 
+    @OneToOne(mappedBy = "scene", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private EasterEggVoice easterEggVoice;
+
     void setStoryInternal(Story story) {
         this.story = story;
     }
@@ -42,5 +47,11 @@ public class Scene {
         }
     }
 
+    public void setEasterEggVoice(EasterEggVoice voice) {
+        this.easterEggVoice = voice;
+        if (voice != null && voice.getScene() != this) {
+            voice.setScene(this);
+        }
+    }
 }
 

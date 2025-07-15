@@ -35,7 +35,7 @@ public class S3Manager {
     private final UuidRepository uuidRepository;
 
     // 지원되는 이미지 확장자
-    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif");
+    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif", "mp3", "wav");
 
     /**
      * 다중 이미지 업로드

@@ -1,0 +1,79 @@
+package everTale.everTale_be.domain.easterEggVoice.service;
+
+import everTale.everTale_be.domain.easterEggVoice.dto.EasterEggVoiceRegisterRequestDto;
+import everTale.everTale_be.domain.easterEggVoice.dto.EasterEggVoiceRequestDto;
+import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
+import everTale.everTale_be.domain.easterEggVoice.repository.EasterEggVoiceRepository;
+import everTale.everTale_be.domain.story.entity.Scene;
+import everTale.everTale_be.domain.story.repository.SceneRepository;
+import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
+import everTale.everTale_be.global.s3.S3Manager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+@Service
+@RequiredArgsConstructor
+public class EasterEggVoiceService {
+
+    private S3Manager s3Manager;
+    private final SceneRepository sceneRepository;
+    private final EasterEggVoiceRepository easterEggVoiceRepository;
+
+    @Transactional
+    public void createEasterEggVoice(Long sceneId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
+        Scene scene = findScene(sceneId);
+
+//        String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios"); 추후에 이걸로 수정할 예정
+        String voiceUrl = voiceFile.getOriginalFilename();
+
+        EasterEggVoice voice = EasterEggVoice.builder()
+                .scene(scene)
+                .xCoordinate(requestDto.getXCoordinate())
+                .yCoordinate(requestDto.getYCoordinate())
+                .width(requestDto.getWidth())
+                .height(requestDto.getHeight())
+                .voiceFile(voiceUrl)
+                .build();
+        easterEggVoiceRepository.save(voice);
+    }
+
+    @Transactional
+    public void deleteEasterEggVoice(Long sceneId){
+        EasterEggVoice voice = easterEggVoiceRepository.findByScene_Id(sceneId)
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.EASTER_EGG_VOICE_NOT_FOUND));
+        Scene scene = voice.getScene();
+        scene.setEasterEggVoice(null);
+//        s3Manager.deleteFile(voice.getVoiceFile()); 추후에 주석 해제 예정
+        easterEggVoiceRepository.delete(voice);
+        System.out.println("삭제 완료: audioId = " + voice.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public String getVoiceUrl(Long sceneId, EasterEggVoiceRequestDto requestDto) {
+        EasterEggVoice voice = easterEggVoiceRepository.findByScene_Id(sceneId)
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.EASTER_EGG_VOICE_NOT_FOUND));
+
+        if (!isInsideArea(voice, requestDto.getXCoordinate(), requestDto.getYCoordinate())) {
+            return null;
+        }
+        return voice.getVoiceFile();
+    }
+
+    private boolean isInsideArea(EasterEggVoice voice, float clickX, float clickY) {
+        float xLeft = voice.getXCoordinate() - voice.getWidth();
+        float xRight = voice.getXCoordinate() + voice.getWidth();
+        float yTop = voice.getYCoordinate() - voice.getHeight();
+        float yBottom = voice.getYCoordinate() + voice.getHeight();
+
+        return clickX >= xLeft && clickX <= xRight && clickY >= yTop && clickY <= yBottom;
+    }
+
+    @Transactional(readOnly = true)
+    public Scene findScene(Long sceneId){
+        return sceneRepository.findById(sceneId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+    }
+}
