@@ -112,8 +112,10 @@ public class EasterEggLetterService {
 
     private Story getStoryForParent(Long storyId) {
         // 부모 권한 검증
-        userHelper.ensureRole(ProfileType.PARENT);
         Profile profile = userHelper.getAuthenticatedProfile();
+        if (profile.getProfileType() != ProfileType.PARENT) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
 
         // 스토리 조회
         Story story = storyRepository.findById(storyId)
