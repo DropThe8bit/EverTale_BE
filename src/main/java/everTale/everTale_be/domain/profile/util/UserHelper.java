@@ -2,6 +2,7 @@ package everTale.everTale_be.domain.profile.util;
 
 import everTale.everTale_be.auth.jwt.CustomUserDetails;
 import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
+import everTale.everTale_be.domain.profile.domain.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.domain.Profile;
 import everTale.everTale_be.domain.profile.repository.ProfileRepository;
 import everTale.everTale_be.domain.user.domain.User;
@@ -75,5 +76,13 @@ public class UserHelper {
             return profileDetails.getProfileId();
         }
         throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+    }
+
+    // 현재 로그인한 사용자의 Role 이 expected 와 일치하는지 검증
+    public void ensureRole(ProfileType expected) {
+        Profile profile = getAuthenticatedProfile();
+        if (profile.getProfileType() != expected) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
     }
 }
