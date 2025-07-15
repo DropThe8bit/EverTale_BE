@@ -53,7 +53,7 @@ public class Profile extends BaseTimeEntity {
     @JoinColumn(name = "user_id", updatable = false, nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "profile")
     private List<Story> stories = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "alarm", cascade = CascadeType.ALL, orphanRemoval = true)
