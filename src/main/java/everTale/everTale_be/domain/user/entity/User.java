@@ -2,6 +2,7 @@ package everTale.everTale_be.domain.user.entity;
 
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.user.entity.Enum.LoginProvider;
+import everTale.everTale_be.domain.voice.entity.Voice;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -43,11 +44,11 @@ public class User extends BaseTimeEntity {
     @Column(name = "login_provider", nullable = false)
     private LoginProvider loginProvider;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<Profile> profiles = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "voice", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Voice> voices = new ArrayList<>();
+
+    @OneToMany(mappedBy = "voice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Voice> voices = new ArrayList<>();
 
     @Builder
     public User(String username,
