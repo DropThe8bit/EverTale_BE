@@ -5,7 +5,6 @@ import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.quiz.dto.QuizResponseDTO;
 import everTale.everTale_be.domain.quiz.entity.Quiz;
 import everTale.everTale_be.domain.quiz.entity.enums.Answer;
-import everTale.everTale_be.domain.quiz.entity.enums.Badge;
 import everTale.everTale_be.domain.quiz.external.QuizApiClient;
 import everTale.everTale_be.domain.quiz.repository.QuizRepository;
 import everTale.everTale_be.domain.story.entity.Scene;
@@ -100,7 +99,7 @@ public class QuizService {
     public QuizResponseDTO.QuizTitleResponseDTO getQuizzesSummary() {
         Profile profile = userHelper.getAuthenticatedProfile();
         return QuizResponseDTO.QuizTitleResponseDTO.builder()
-                .isCorrectCount(profile.getQuizSolvedCount())
+                .correctAnswerCount(profile.getQuizSolvedCount())
                 .badge(profile.getBadge().getBadge())
                 .build();
     }

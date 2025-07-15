@@ -23,7 +23,5 @@ public interface SceneRepository extends JpaRepository<Scene, Long> {
 
     List<Scene> findAllByStoryIdAndStoryProfileIdAndQuizIsNull(Long storyId, Long profileId);
 
-
-
-
+    Optional<Scene> findByIdAndStoryId(Long sceneId, Long storyId);
 }
