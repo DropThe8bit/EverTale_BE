@@ -4,7 +4,6 @@ import everTale.everTale_be.domain.character.dto.CharacterCollectionResponseDto;
 import everTale.everTale_be.domain.character.dto.CharacterDetailResponseDto;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
-import everTale.everTale_be.domain.profile.domain.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;

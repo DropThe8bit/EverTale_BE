@@ -1,9 +1,9 @@
 package everTale.everTale_be.domain.voice.service;
 
 import everTale.everTale_be.domain.profile.util.UserHelper;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
-import everTale.everTale_be.domain.voice.domain.Voice;
+import everTale.everTale_be.domain.voice.entity.Voice;
 import everTale.everTale_be.domain.voice.dto.response.VoiceListResponseDto;
 import everTale.everTale_be.domain.voice.external.VoiceApiClient;
 import everTale.everTale_be.domain.voice.repository.VoiceRepository;

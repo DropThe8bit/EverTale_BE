@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.profile.repository;
 
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

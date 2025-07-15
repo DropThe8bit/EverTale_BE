@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,9 +1,9 @@
 package everTale.everTale_be.domain.profile.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import everTale.everTale_be.domain.profile.domain.Enum.ProfileType;
-import everTale.everTale_be.domain.profile.domain.Profile;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
+import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

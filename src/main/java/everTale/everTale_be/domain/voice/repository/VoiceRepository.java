@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.voice.repository;
 
-import everTale.everTale_be.domain.voice.domain.Voice;
+import everTale.everTale_be.domain.voice.entity.Voice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

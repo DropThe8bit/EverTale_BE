@@ -1,7 +1,7 @@
 package everTale.everTale_be.domain.user.repository;
 
-import everTale.everTale_be.domain.user.domain.Enum.LoginProvider;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.Enum.LoginProvider;
+import everTale.everTale_be.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

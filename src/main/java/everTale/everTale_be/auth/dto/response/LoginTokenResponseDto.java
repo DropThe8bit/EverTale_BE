@@ -1,7 +1,7 @@
 package everTale.everTale_be.auth.dto.response;
 
 import everTale.everTale_be.auth.jwt.JwtUtil;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package everTale.everTale_be.domain.user.domain;
+package everTale.everTale_be.domain.user.entity;
 
-import everTale.everTale_be.domain.profile.domain.Profile;
-import everTale.everTale_be.domain.user.domain.Enum.LoginProvider;
+import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.user.entity.Enum.LoginProvider;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;

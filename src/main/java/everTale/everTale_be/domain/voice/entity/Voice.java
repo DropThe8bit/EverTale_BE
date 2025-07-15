@@ -1,6 +1,6 @@
-package everTale.everTale_be.domain.voice.domain;
+package everTale.everTale_be.domain.voice.entity;
 
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.profile.dto.response;
 
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
