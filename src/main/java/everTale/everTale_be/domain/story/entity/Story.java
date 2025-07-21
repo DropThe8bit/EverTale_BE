@@ -30,8 +30,7 @@ public class Story extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "easter_egg_letter_id")
+    @OneToOne(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private EasterEggLetter easterEggLetter;
 
@@ -59,8 +58,17 @@ public class Story extends BaseTimeEntity {
         this.title = title;
     }
 
+    public void addEasterEggLetter(EasterEggLetter letter) {
+        this.easterEggLetter = letter;
+        letter.updateStory(this);
+    }
 
-
+    public void removeEasterEggLetter() {
+        if (this.easterEggLetter != null) {
+            this.easterEggLetter.updateStory(null);
+            this.easterEggLetter = null;
+        }
+    }
     public void updateGenre(Genre genre) {this.genre = genre;}
     public void addScene(Scene scene) {
         storyScenes.add(scene);
