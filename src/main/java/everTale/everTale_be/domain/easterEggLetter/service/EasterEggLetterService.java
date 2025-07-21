@@ -67,10 +67,7 @@ public class EasterEggLetterService {
             }
         }
 
-        EasterEggLetter letter = story.getEasterEggLetter();
-        if (letter == null) {
-            throw new NotFoundHandler(ErrorStatus.EASTER_EGG_LETTER_NOT_FOUND);
-        }
+        EasterEggLetter letter = getExistingLetterOrThrow(story);
 
         // 자녀의 경우 공개 시간 확인
         if (role == ProfileType.CHILD) {
@@ -87,10 +84,7 @@ public class EasterEggLetterService {
     @Transactional
     public void updateEasterEggLetter(Long storyId, EasterEggLetterRequestDTO.EasterEggLetterUpdateRequestDTO request) {
         Story story = getStoryForParent(storyId);
-        EasterEggLetter letter = story.getEasterEggLetter();
-        if (letter == null) {
-            throw new NotFoundHandler(ErrorStatus.EASTER_EGG_LETTER_NOT_FOUND);
-        }
+        EasterEggLetter letter = getExistingLetterOrThrow(story);
 
         // 편지 수정
         letter.updateLetter(request.getContent(), request.getImageNum(), request.getAvailableAt());
@@ -100,11 +94,7 @@ public class EasterEggLetterService {
     @Transactional
     public void deleteEasterEggLetter(Long storyId) {
         Story story = getStoryForParent(storyId);
-
-        EasterEggLetter letter = story.getEasterEggLetter();
-        if (letter == null) {
-            throw new NotFoundHandler(ErrorStatus.EASTER_EGG_LETTER_NOT_FOUND);
-        }
+        getExistingLetterOrThrow(story);
 
         // 연관관계 제거
         story.removeEasterEggLetter();
@@ -127,6 +117,14 @@ public class EasterEggLetterService {
         }
 
         return story;
+    }
+
+    private EasterEggLetter getExistingLetterOrThrow(Story story) {
+        EasterEggLetter letter = story.getEasterEggLetter();
+        if (letter == null) {
+            throw new NotFoundHandler(ErrorStatus.EASTER_EGG_LETTER_NOT_FOUND);
+        }
+        return letter;
     }
 
 }

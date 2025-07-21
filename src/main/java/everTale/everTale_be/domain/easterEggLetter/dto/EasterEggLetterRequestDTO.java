@@ -1,6 +1,5 @@
 package everTale.everTale_be.domain.easterEggLetter.dto;
 
-import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -38,14 +37,6 @@ public class EasterEggLetterRequestDTO {
         )
         @NotNull(message = "편지를 열 수 있는 시간은 반드시 지정해야 합니다.")
         private LocalDateTime availableAt;
-
-        public static EasterEggLetterCreateRequestDTO from(EasterEggLetter letter) {
-            return EasterEggLetterCreateRequestDTO.builder()
-                    .content(letter.getContent())
-                    .imageNum(letter.getImageNum())
-                    .availableAt(letter.getAvailableAt())
-                    .build();
-        }
     }
 
     @Getter
