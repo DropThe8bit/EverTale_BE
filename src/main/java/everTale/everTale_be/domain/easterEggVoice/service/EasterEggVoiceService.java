@@ -1,7 +1,7 @@
 package everTale.everTale_be.domain.easterEggVoice.service;
 
-import everTale.everTale_be.domain.easterEggVoice.dto.EasterEggVoiceRegisterRequestDto;
-import everTale.everTale_be.domain.easterEggVoice.dto.EasterEggVoiceRequestDto;
+import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRegisterRequestDto;
+import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRequestDto;
 import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
 import everTale.everTale_be.domain.easterEggVoice.repository.EasterEggVoiceRepository;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
