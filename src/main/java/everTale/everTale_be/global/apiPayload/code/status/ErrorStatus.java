@@ -27,6 +27,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USER4012", "이메일 또는 비밀번호가 일치하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "USER4012", "유효하지 않은 리프레시 토큰입니다."),
     BLOCKED_TOKEN(HttpStatus.BAD_REQUEST, "USER400", "블랙리스트에 있는 토큰입니다. 다시 로그인 해주세요."),
+    EMPTY_ACCESS_TOKEN(HttpStatus.BAD_REQUEST,"USER 4003", "엑세스 토큰이 null이거나 비었습니다."),
 
     // Profile 관련 에러
     ALREADY_EXISTS_PROFILE(HttpStatus.CONFLICT, "PROFILE409", "중복되는 프로필 이름입니다."),
