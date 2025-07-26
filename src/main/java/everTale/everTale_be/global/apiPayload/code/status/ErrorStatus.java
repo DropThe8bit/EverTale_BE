@@ -54,6 +54,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // EasterEgg 관련
     EASTER_EGG_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG400","이스터에그 편지를 찾을 수 없습니다."),
+    EASTER_EGG_LETTER_NOT_YET_AVAILABLE(HttpStatus.BAD_REQUEST,"EASTER_EGG401","이스터에그 편지를 열람할 수 없습니다."),
+    EASTER_EGG_LETTER_ALREADY_EXISTS(HttpStatus.CONFLICT,"EASTER_EGG402","이스터에그 편지가 이미 존재합니다."),
     EASTER_EGG_VOICE_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG4002","이스터에그 음성을 찾을 수 없습니다."),
 
     //Quiz 관련
