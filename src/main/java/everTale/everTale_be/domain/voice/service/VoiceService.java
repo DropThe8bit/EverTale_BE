@@ -1,9 +1,11 @@
 package everTale.everTale_be.domain.voice.service;
 
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
-import everTale.everTale_be.domain.voice.domain.Voice;
+import everTale.everTale_be.domain.voice.entity.Voice;
 import everTale.everTale_be.domain.voice.dto.response.VoiceListResponseDto;
 import everTale.everTale_be.domain.voice.external.VoiceApiClient;
 import everTale.everTale_be.domain.voice.repository.VoiceRepository;
@@ -12,6 +14,7 @@ import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -19,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class VoiceService {
 
@@ -36,6 +40,7 @@ public class VoiceService {
     }
 
     public void registerUserVoice(MultipartFile file) {
+        validateParent();
         Long profileId = userHelper.getAuthenticatedProfileId();
         User rootUser = findRootUserByProfile(profileId);
 
@@ -67,6 +72,7 @@ public class VoiceService {
     }
 
     public void deleteVoice(Long voiceId){
+        validateParent();
         Long profileId = userHelper.getAuthenticatedProfileId();
         User rootUser = findRootUserByProfile(profileId);
         Voice voice = findVoice(voiceId);
@@ -78,14 +84,23 @@ public class VoiceService {
         voiceRepository.delete(voice);
     }
 
-    public Voice findVoice(Long voiceId){
+    @Transactional(readOnly = true)
+    private Voice findVoice(Long voiceId){
         return voiceRepository.findById(voiceId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_VOICE));
     }
 
-    public User findRootUserByProfile(Long profileId){
+    @Transactional(readOnly = true)
+    private User findRootUserByProfile(Long profileId){
         return userRepository.findByProfiles_Id(profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
+    }
+
+    private void validateParent(){
+        Profile profile = userHelper.getAuthenticatedProfile();
+        if (profile.getProfileType() != ProfileType.PARENT) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
     }
 
     private String extractNameWithoutExtension(String filename) {

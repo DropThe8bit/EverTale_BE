@@ -1,10 +1,10 @@
 package everTale.everTale_be.domain.profile.util;
 
 import everTale.everTale_be.auth.jwt.CustomUserDetails;
-import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.CustomProfileDetails;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.repository.ProfileRepository;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;

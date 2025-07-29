@@ -4,11 +4,13 @@ import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenAuthService {
@@ -50,10 +52,10 @@ public class TokenAuthService {
 
     // BlackList
     public void addToBlackListForAccessToken(String accessToken, String reason) {
-        System.out.println("Access Token: " + accessToken);
+        log.info("Access Token: {}", accessToken);
 
         if (accessToken == null || accessToken.isEmpty()) {
-            throw new IllegalArgumentException("Access Token is null or empty");
+            throw new BadRequestHandler(ErrorStatus.EMPTY_ACCESS_TOKEN);
         }
         redisTemplate.opsForValue().set(
                 BLACKLIST_PREFIX + accessToken,

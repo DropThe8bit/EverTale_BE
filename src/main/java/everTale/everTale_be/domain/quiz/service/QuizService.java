@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.quiz.service;
 
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.quiz.dto.QuizResponseDTO;
 import everTale.everTale_be.domain.quiz.entity.Quiz;

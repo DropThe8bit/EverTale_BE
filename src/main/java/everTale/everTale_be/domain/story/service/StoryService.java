@@ -5,7 +5,7 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;

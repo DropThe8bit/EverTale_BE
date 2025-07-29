@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.profile.domain;
+package everTale.everTale_be.domain.profile.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

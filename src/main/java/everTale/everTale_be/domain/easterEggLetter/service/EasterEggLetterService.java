@@ -1,11 +1,10 @@
 package everTale.everTale_be.domain.easterEggLetter.service;
 
-
 import everTale.everTale_be.domain.easterEggLetter.dto.EasterEggLetterRequestDTO;
 import everTale.everTale_be.domain.easterEggLetter.dto.EasterEggLetterResponseDTO;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
-import everTale.everTale_be.domain.profile.domain.Enum.ProfileType;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.StoryRepository;
