@@ -70,7 +70,7 @@ public class QuizResponseDTO {
     @Getter
     @Builder
     public static class QuizTitleResponseDTO {
-        private int isCorrectCount;
+        private int correctAnswerCount;
         private String badge;
     }
 }

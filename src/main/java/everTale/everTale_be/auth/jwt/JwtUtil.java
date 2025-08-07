@@ -1,6 +1,6 @@
 package everTale.everTale_be.auth.jwt;
 
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import io.jsonwebtoken.Claims;

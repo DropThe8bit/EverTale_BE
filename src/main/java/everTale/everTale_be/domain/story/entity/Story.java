@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,8 +30,7 @@ public class Story extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "easter_egg_letter_id")
+    @OneToOne(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private EasterEggLetter easterEggLetter;
 
@@ -59,8 +58,17 @@ public class Story extends BaseTimeEntity {
         this.title = title;
     }
 
+    public void addEasterEggLetter(EasterEggLetter letter) {
+        this.easterEggLetter = letter;
+        letter.updateStory(this);
+    }
 
-
+    public void removeEasterEggLetter() {
+        if (this.easterEggLetter != null) {
+            this.easterEggLetter.updateStory(null);
+            this.easterEggLetter = null;
+        }
+    }
     public void updateGenre(Genre genre) {this.genre = genre;}
     public void addScene(Scene scene) {
         storyScenes.add(scene);

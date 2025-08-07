@@ -5,7 +5,7 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
-import everTale.everTale_be.domain.profile.domain.Profile;
+import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.UserHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
@@ -264,5 +264,16 @@ public class StoryService {
         Long profileId = userHelper.getAuthenticatedProfileId();
         Page<Story> stories = storyRepository.findByProfileId(profileId, pageable);
         return StoryCollectionResponseDto.from(stories);
+    }
+
+    public String getSceneText(Long storyId, Long sceneId) {
+        boolean isStoryExists = storyRepository.existsById(storyId);
+        if (!isStoryExists){
+            throw new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND);
+        }
+        Scene scene = sceneRepository.findByIdAndStoryId(sceneId, storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+
+        return scene.getContent();
     }
 }

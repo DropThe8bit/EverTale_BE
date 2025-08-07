@@ -1,7 +1,7 @@
 package everTale.everTale_be.auth.jwt;
 
-import everTale.everTale_be.domain.profile.domain.CustomProfileDetails;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.profile.entity.CustomProfileDetails;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;

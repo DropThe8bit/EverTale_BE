@@ -1,11 +1,11 @@
-package everTale.everTale_be.domain.profile.domain;
+package everTale.everTale_be.domain.profile.entity;
 
-import everTale.everTale_be.domain.profile.domain.Enum.ProfileType;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileUpdateRequestDto;
 import everTale.everTale_be.domain.profile.dto.request.ParentProfileUpdateRequestDto;
 import everTale.everTale_be.domain.quiz.entity.enums.Badge;
 import everTale.everTale_be.domain.story.entity.Story;
-import everTale.everTale_be.domain.user.domain.User;
+import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -53,7 +53,7 @@ public class Profile extends BaseTimeEntity {
     @JoinColumn(name = "user_id", updatable = false, nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "profile")
     private List<Story> stories = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "alarm", cascade = CascadeType.ALL, orphanRemoval = true)
