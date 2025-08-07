@@ -18,7 +18,7 @@ spring:
           time_zone: Asia/Seoul
   data:
     redis:
-      host: localhost
+      host: ${REDIS_ENDPOINT}
       port: 6379
 
   servlet:
