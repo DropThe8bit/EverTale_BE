@@ -1,6 +1,7 @@
 name: Deploy EverTale_BE
 
 on:
+  workflow_dispatch:
   push:
     branches: [ develop ]
 
