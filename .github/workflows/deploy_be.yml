@@ -1,6 +1,7 @@
 name: Deploy EverTale_BE
 
 on:
+  workflow_dispatch:
   push:
     branches: [ develop ]
 
@@ -43,3 +44,11 @@ jobs:
           docker build -t ${{ secrets.DOCKER_REPO }}:latest .
           docker push ${{ secrets.DOCKER_REPO }}:latest
             sudo docker image prune -f
+
+      # 6. Infra 워크플로 트리거
+#      - name: Trigger EverTale-infra workflow
+#        uses: peter-evans/repository-dispatch@v3
+#        with:
+#          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+#          repository: DropThe8bit/EverTale-infra
+#          event-type: trigger-from-be
