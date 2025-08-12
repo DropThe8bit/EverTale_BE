@@ -6,7 +6,7 @@ import everTale.everTale_be.auth.dto.response.LoginTokenResponseDto;
 import everTale.everTale_be.auth.dto.response.UserInfoResponseDto;
 import everTale.everTale_be.auth.jwt.JwtProvider;
 import everTale.everTale_be.auth.jwt.JwtUtil;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.auth.util.UserHelper;
 import everTale.everTale_be.domain.user.entity.Enum.LoginProvider;
 import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
@@ -17,6 +17,8 @@ import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHand
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,30 +59,30 @@ public class AuthService {
         }
 
         String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
-
-        return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
+        return LoginTokenResponseDto.of(user, accessToken, jwtUtil, false);
     }
 
     // 네이버 로그인
     public LoginTokenResponseDto naverLogin(String code, String state) {
         String naverAccessToken = naverService.getNaverAccessToken(code, state);
         UserInfoResponseDto userInfo = naverService.getNaverUser(naverAccessToken);
-        User user = findOrCreateUserForNaver(userInfo);
+
+        Optional<User> findUser = userRepository.findByEmailAndLoginProvider(userInfo.getResponse().getEmail(), LoginProvider.NAVER);
+
+        final boolean isFirstLogin;
+        final User user;
+
+        if (findUser.isPresent()) {
+            user = findUser.get();
+            isFirstLogin = false;
+        } else {
+            user = createUserForNaver(userInfo);
+            isFirstLogin = true;
+        }
 
         String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-
-        tokenAuthService.saveRefreshToken(user.getId(), refreshToken);
-
-        return LoginTokenResponseDto.of(user, accessToken, refreshToken, jwtUtil);
-    }
-
-    public User findOrCreateUserForNaver(UserInfoResponseDto responseDto){
-        return userRepository.findByEmailAndLoginProvider(responseDto.getResponse().getEmail(), LoginProvider.NAVER)
-                .orElseGet(()-> createUserForNaver(responseDto));
+        return LoginTokenResponseDto.of(user, accessToken, jwtUtil, isFirstLogin);
     }
 
     public User createUserForNaver(UserInfoResponseDto responseDto){
@@ -92,23 +94,6 @@ public class AuthService {
                 .loginProvider(LoginProvider.NAVER)
                 .build();
         return userRepository.save(user);
-    }
-
-    // 토큰 재발급
-    public LoginTokenResponseDto reissue(String refreshToken){
-        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
-        tokenAuthService.validateRefreshToken(userId, refreshToken);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
-
-        tokenAuthService.deleteRefreshToken(userId);
-
-        String newAccessToken = jwtUtil.generateAccessToken(user);
-        String newRefreshToken = jwtUtil.generateRefreshToken(user);
-        tokenAuthService.saveRefreshToken(userId, newRefreshToken);
-
-        return LoginTokenResponseDto.of(user, newAccessToken, newRefreshToken, jwtUtil);
     }
 
     // 로그아웃

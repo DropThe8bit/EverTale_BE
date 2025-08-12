@@ -2,7 +2,7 @@ package everTale.everTale_be.domain.voice.service;
 
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.domain.voice.entity.Voice;
@@ -26,13 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VoiceService {
 
-    private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
     private final UserRepository userRepository;
     private final VoiceRepository voiceRepository;
     private final VoiceApiClient voiceApiClient;
 
     public VoiceListResponseDto getVoicesOfRootUserForProfile() {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         User rootUser = findRootUserByProfile(profileId);
 
         List<Voice> voices = voiceRepository.findAllByUserId(rootUser.getId());
@@ -41,7 +41,7 @@ public class VoiceService {
 
     public void registerUserVoice(MultipartFile file) {
         validateParent();
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         User rootUser = findRootUserByProfile(profileId);
 
         String voiceName = extractNameWithoutExtension(file.getOriginalFilename());
@@ -73,7 +73,7 @@ public class VoiceService {
 
     public void deleteVoice(Long voiceId){
         validateParent();
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         User rootUser = findRootUserByProfile(profileId);
         Voice voice = findVoice(voiceId);
 
@@ -97,7 +97,7 @@ public class VoiceService {
     }
 
     private void validateParent(){
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         if (profile.getProfileType() != ProfileType.PARENT) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }

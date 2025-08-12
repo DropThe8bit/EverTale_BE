@@ -3,6 +3,7 @@ package everTale.everTale_be.domain.profile.service;
 import everTale.everTale_be.auth.jwt.JwtProvider;
 import everTale.everTale_be.auth.jwt.JwtUtil;
 import everTale.everTale_be.auth.service.TokenAuthService;
+import everTale.everTale_be.auth.util.UserHelper;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileRequestDto;
@@ -11,13 +12,14 @@ import everTale.everTale_be.domain.profile.dto.request.ParentProfileUpdateReques
 import everTale.everTale_be.domain.profile.dto.request.PasswordUpdateRequestDto;
 import everTale.everTale_be.domain.profile.dto.response.*;
 import everTale.everTale_be.domain.profile.repository.ProfileRepository;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class ProfileService {
     private final TokenAuthService tokenAuthService;
     private final JwtUtil jwtUtil;
     private final JwtProvider jwtProvider;
+    private final ProfileHelper profileHelper;
     private final UserHelper userHelper;
 
     public void createChildProfile(ChildProfileRequestDto requestDto){
@@ -76,7 +79,7 @@ public class ProfileService {
     // 프로필 상세정보 조회
     @Transactional(readOnly = true)
     public ProfileInfoResponseDto getProfileInfo(){
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         if (profile.getProfileType() == ProfileType.PARENT) {
             return ParentProfileInfoResponseDto.from(profile);
         } else {
@@ -92,22 +95,25 @@ public class ProfileService {
         if (profile.getUser().getId() != userId) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
-        String newAccessToken = jwtUtil.generateAccessTokenWithProfile(userId, profileId);
-        return ProfileEnterResponseDto.from(profile, newAccessToken);
+        String accessToken = jwtUtil.generateAccessTokenWithProfile(userId, profileId);
+        String refreshToken = jwtUtil.generateRefreshTokenWithProfile(userId, profileId);
+        tokenAuthService.saveRefreshToken(profileId, refreshToken);
+
+        return ProfileEnterResponseDto.from(profile, accessToken, refreshToken, jwtUtil);
     }
 
     public void updateChildProfile(ChildProfileUpdateRequestDto requestDto) {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         profile.updateChild(requestDto);
     }
 
     public void updateParentProfile(ParentProfileUpdateRequestDto requestDto) {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         profile.updateParent(requestDto);
     }
 
     public void updatePassword(PasswordUpdateRequestDto requestDto) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         User rootUser = userRepository.findByProfiles_Id(profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.NOT_FOUND_USER));
 
@@ -133,13 +139,15 @@ public class ProfileService {
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_PROFILE));
         String newAccessToken = jwtUtil.generateAccessTokenWithProfile(userId, profile.getId());
+        String newRefreshToken = jwtUtil.generateRefreshTokenWithProfile(userId, profile.getId());
+        tokenAuthService.saveRefreshToken(profileId, newRefreshToken);
 
-        return ProfileEnterResponseDto.from(profile, newAccessToken);
+        return ProfileEnterResponseDto.from(profile, newAccessToken, newRefreshToken, jwtUtil);
     }
 
     // 프로필 삭제 (회원 탈퇴 X)
     public void deleteProfile(String accessToken){
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
         profileRepository.anonymizeProfile(profileId);

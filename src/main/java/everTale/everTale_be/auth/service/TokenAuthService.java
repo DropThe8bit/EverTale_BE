@@ -20,17 +20,17 @@ public class TokenAuthService {
     private static final String BLACKLIST_PREFIX = "blacklist:";
 
     // token 저장
-    public void saveRefreshToken(Long userId, String refreshToken) {
+    public void saveRefreshToken(Long profileId, String refreshToken) {
         redisTemplate.opsForValue().set(
-                PREFIX + userId,   // Key
+                PREFIX + profileId, // Key
                 refreshToken,           // Value
                 7, TimeUnit.DAYS        // 유효기간
         );
     }
 
     // token 조회
-    public String getRefreshToken(Long userId) {
-        String token = redisTemplate.opsForValue().get(PREFIX + userId);
+    public String getRefreshToken(Long profileId) {
+        String token = redisTemplate.opsForValue().get(PREFIX + profileId);
         if (token == null) {
             throw new UnAuthorizedHandler(ErrorStatus.NOT_FOUND_REFRESH_TOKEN);
         }
@@ -38,13 +38,13 @@ public class TokenAuthService {
     }
 
     // token 삭제
-    public void deleteRefreshToken(Long userId) {
-        redisTemplate.delete(PREFIX + userId);
+    public void deleteRefreshToken(Long profileId) {
+        redisTemplate.delete(PREFIX + profileId);
     }
 
     // token 존재 여부
-    public void validateRefreshToken(Long userId, String refreshToken) {
-        String storedRefreshToken = getRefreshToken(userId);
+    public void validateRefreshToken(Long profileId, String refreshToken) {
+        String storedRefreshToken = getRefreshToken(profileId);
         if (!storedRefreshToken.equals(refreshToken)) {
             throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
