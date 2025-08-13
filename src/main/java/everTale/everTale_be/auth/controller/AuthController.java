@@ -44,16 +44,8 @@ public class AuthController {
     @GetMapping("/naver-login")
     @Operation(summary = "네이버 로그인", description = "네이버 소셜 로그인. OAuth 인가 코드와 state를 통해 토큰을 발급합니다.")
     public ApiResponse<LoginTokenResponseDto> naverLogin(@RequestParam String code,
-                                                            @RequestParam String state) {
+                                                         @RequestParam String state) {
         LoginTokenResponseDto responseDto = authService.naverLogin(code, state);
-        return ApiResponse.onSuccess(responseDto);
-    }
-
-    // 토큰 재발급
-    @PostMapping("/reissue")
-    @Operation(summary = "토큰 재발급", description = "Refresh Token을 통해 Access Token과 Refresh Token을 재발급합니다.")
-    public ApiResponse<LoginTokenResponseDto> reissue(@Valid @RequestBody ReissueRequestDto requestDto){
-        LoginTokenResponseDto responseDto = authService.reissue(requestDto.getRefreshToken());
         return ApiResponse.onSuccess(responseDto);
     }
 
