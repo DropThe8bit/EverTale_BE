@@ -6,7 +6,7 @@ import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
 import everTale.everTale_be.domain.easterEggVoice.repository.EasterEggVoiceRepository;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.repository.SceneRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class EasterEggVoiceService {
 
-    private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
     private final S3Manager s3Manager;
     private final SceneRepository sceneRepository;
     private final EasterEggVoiceRepository easterEggVoiceRepository;
@@ -89,7 +89,7 @@ public class EasterEggVoiceService {
 
     @Transactional(readOnly = true)
     private void validateParent() {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         if (profile.getProfileType() != ProfileType.PARENT) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
