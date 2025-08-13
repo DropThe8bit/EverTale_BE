@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -35,33 +36,37 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .claim("userId", user.getId())
+                .claim("scope", List.of("account"))
                 .issuedAt(generated)
                 .expiration(accessTokenExpiredAt)
                 .signWith(secretKey)
                 .compact();
     }
 
-    // 프로필 선택 후, 프로필 ID가 추가된 JWT 토큰 생성
+    // 프로필 기반 JWT 토큰 생성
     public String generateAccessTokenWithProfile(Long userId, Long profileId) {
         Date generated = new Date(System.currentTimeMillis());
         Date accessTokenExpiredAt = new Date(generated.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("userId", userId)  // userId
-                .claim("profileId", profileId)  // profileId 추가
+                .claim("userId", userId)
+                .claim("profileId", profileId)
+                .claim("scope", List.of("profile"))
                 .issuedAt(generated)
                 .expiration(accessTokenExpiredAt)
                 .signWith(secretKey)
                 .compact();
     }
 
-    // JWT refresh token 생성
-    public String generateRefreshToken(User user) {
+    // 프로필 기반 JWT refresh token 생성
+    public String generateRefreshTokenWithProfile(Long userId, Long profileId) {
         Date generated = new Date(System.currentTimeMillis());
         Date refreshTokenExpiredAt = new Date(generated.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .claim("userId", user.getId())
+                .claim("userId", userId)
+                .claim("profileId", profileId)
+                .claim("scope", List.of("profile"))
                 .issuedAt(generated)
                 .expiration(refreshTokenExpiredAt)
                 .signWith(secretKey)

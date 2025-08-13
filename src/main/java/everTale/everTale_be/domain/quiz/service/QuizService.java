@@ -1,7 +1,7 @@
 package everTale.everTale_be.domain.quiz.service;
 
 import everTale.everTale_be.domain.profile.entity.Profile;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.quiz.dto.QuizResponseDTO;
 import everTale.everTale_be.domain.quiz.entity.Quiz;
 import everTale.everTale_be.domain.quiz.entity.enums.Answer;
@@ -26,11 +26,11 @@ public class QuizService {
     private final SceneRepository sceneRepository;
     private final QuizRepository quizRepository;
     private final QuizApiClient quizApiClient;
-    private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
 
     @Transactional
     public QuizResponseDTO.QuizGenerateResponseDTO generateQuizForRandomScene(Long storyId) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
 
         List<Scene> scenes = sceneRepository.findAllByStoryIdAndStoryProfileIdAndQuizIsNull(storyId, profileId);
         if (scenes.isEmpty()) {
@@ -58,7 +58,7 @@ public class QuizService {
     // quiz 조회
     @Transactional(readOnly = true)
     public List<QuizResponseDTO.QuizGetResponseDTO> getAllQuizzesByStoryId(Long storyId) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         List<Quiz> quizzes = quizRepository.findAllByScene_Story_IdAndScene_Story_Profile_Id(storyId, profileId);
 
         return quizzes.stream()
@@ -69,14 +69,14 @@ public class QuizService {
     // quiz 삭제
     @Transactional
     public void deleteAllQuizzesByStoryId(Long storyId) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         quizRepository.deleteByStoryIdAndProfileId(storyId, profileId);
     }
 
     // quiz 정답
     @Transactional
     public QuizResponseDTO.QuizAnswerResponseDTO submitQuizAnswer(Long quizId, int selectedAnswer) {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.QUIZ_NOT_FOUND));
 
@@ -97,7 +97,7 @@ public class QuizService {
     // 퀴즈 결과 요약 및 칭호 확인
     @Transactional(readOnly = true)
     public QuizResponseDTO.QuizTitleResponseDTO getQuizzesSummary() {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         return QuizResponseDTO.QuizTitleResponseDTO.builder()
                 .correctAnswerCount(profile.getQuizSolvedCount())
                 .badge(profile.getBadge().getBadge())

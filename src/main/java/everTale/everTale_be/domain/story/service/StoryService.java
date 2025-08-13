@@ -6,7 +6,7 @@ import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
 import everTale.everTale_be.domain.profile.entity.Profile;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
@@ -36,7 +36,7 @@ public class StoryService {
     private final StoryCharacterRepository storyCharacterRepository;
     private final PersonalityRepository personalityRepository;
     private final StoryApiClient storyApiClient;
-    private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
 
     // Scene 단일 조회
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class StoryService {
     // 스토리 생성
     @Transactional
     public Long createEmptyStory() {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         Story story = Story.builder()
                         .profile(profile)
                         .build();
@@ -243,12 +243,12 @@ public class StoryService {
     }
 
     private Scene findScene(Long storyId, int sceneNum){
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         return sceneRepository.findByStoryIdAndPageAndStoryProfileId(storyId, sceneNum, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
     }
     private Story findStory(Long storyId) {
-        Long profileId = userHelper.getAuthenticatedProfileId();
+        Long profileId = profileHelper.getAuthenticatedProfileId();
         return storyRepository.findByIdAndProfileId(storyId, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
     }

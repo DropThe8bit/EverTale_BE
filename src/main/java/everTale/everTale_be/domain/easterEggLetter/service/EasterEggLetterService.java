@@ -5,7 +5,7 @@ import everTale.everTale_be.domain.easterEggLetter.dto.EasterEggLetterResponseDT
 import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
-import everTale.everTale_be.domain.profile.util.UserHelper;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.StoryRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class EasterEggLetterService {
 
     private final StoryRepository storyRepository;
-    private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
 
     // 이스터에그 편지 생성
     @Transactional
@@ -48,7 +48,7 @@ public class EasterEggLetterService {
     // 이스터에그 편지 조회
     @Transactional(readOnly = true)
     public EasterEggLetterResponseDTO getEasterEggLetterFor(Long storyId) {
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         ProfileType role = profile.getProfileType();
 
         // 스토리 조회
@@ -101,7 +101,7 @@ public class EasterEggLetterService {
 
     private Story getStoryForParent(Long storyId) {
         // 부모 권한 검증
-        Profile profile = userHelper.getAuthenticatedProfile();
+        Profile profile = profileHelper.getAuthenticatedProfile();
         if (profile.getProfileType() != ProfileType.PARENT) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
