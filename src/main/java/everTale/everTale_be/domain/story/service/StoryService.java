@@ -5,7 +5,9 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.profile.repository.ProfileRepository;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
@@ -17,6 +19,7 @@ import everTale.everTale_be.domain.story.repository.StoryRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.domain.story.external.StoryApiClient;
+import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,7 @@ public class StoryService {
     private final StoryRepository storyRepository;
     private final StoryCharacterRepository storyCharacterRepository;
     private final PersonalityRepository personalityRepository;
+    private final ProfileRepository profileRepository;
     private final StoryApiClient storyApiClient;
     private final ProfileHelper profileHelper;
 
@@ -261,6 +265,19 @@ public class StoryService {
 
     // 나의 책장
     public StoryCollectionResponseDto getStories(Long profileId, Pageable pageable) {
+        Profile profile = profileHelper.getAuthenticatedProfile();
+
+        if (profile.getProfileType()== ProfileType.CHILD) {
+            if (!profile.getId().equals(profileId)) {
+                throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+            }
+        } else {
+            boolean isMyChild = profileRepository.existsByUserIdAndId(profile.getId(), profileId);
+            if (!isMyChild) {
+                throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+            }
+        }
+
         Page<Story> stories = storyRepository.findByProfileId(profileId, pageable);
         return StoryCollectionResponseDto.from(stories);
     }
