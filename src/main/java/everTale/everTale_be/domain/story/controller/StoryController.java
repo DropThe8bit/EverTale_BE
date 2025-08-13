@@ -3,6 +3,7 @@ package everTale.everTale_be.domain.story.controller;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.domain.story.dto.StoryResponseDTO;
 import everTale.everTale_be.domain.story.service.StoryService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,18 +28,35 @@ public class StoryController {
     @Operation(summary = "단일 Scene 조회 API", description = "스토리 ID와 씬 번호를 기반으로 해당 씬의 내용을 조회합니다.")
     @GetMapping("/{storyId}/scenes/{sceneNum}")
     public ApiResponse<SceneResponseDTO> getSceneBySceneNum(
-            @PathVariable Long storyId,
-            @PathVariable int sceneNum
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum
     ) {
         SceneResponseDTO scene = storyService.getSceneBySceneNum(storyId, sceneNum);
         return ApiResponse.onSuccess(scene);
     }
 
+    @Operation(summary = "스토리의 전체 씬 조회 API", description = "스토리 ID를 기반으로 해당 스토리의 모든 씬을 page 오름차순으로 반환합니다.")
+    @GetMapping("/{storyId}/scenes")
+    public ApiResponse<StoryResponseDTO.StoryScenesResponseDTO> getScenesOfStory(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId) {
+        return ApiResponse.onSuccess(storyService.getScenesOfStory(storyId));
+    }
+
+    @Operation(summary = "스토리 제목 설정 API", description = "스토리 ID와 title 기반으로 해당 스토리의 제목을 설정합니다.")
+    @PatchMapping("/{storyId}/title")
+    public ApiResponse<String> updateStoryTitle(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "스토리 제목") @RequestParam String title
+    ) {
+        storyService.updateStoryTitle(storyId, title);
+        return ApiResponse.onSuccess(title);
+    }
+
     @Operation(summary = "줄거리 수정 API", description = "특정 장면의 줄거리를 사용자가 수정한 내용으로 업데이트한다.")
     @PatchMapping("/{storyId}/scenes/{sceneNum}")
     public ApiResponse<String> updateSceneContent(
-            @PathVariable Long storyId,
-            @PathVariable int sceneNum,
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
             @RequestBody StoryRequestDTO.StoryUpdateRequestDTO request
     ) {
         String updatedContent = storyService.updateSceneContent(storyId, sceneNum, request.getUpdatedContent());
@@ -47,7 +65,7 @@ public class StoryController {
 
     @Operation(summary = "스토리 삭제 API", description = "스토리 ID를 기준으로 해당 스토리 및 모든 연관 Scene을 삭제합니다.")
     @DeleteMapping("/{storyId}")
-    public ApiResponse<String> deleteStory(@PathVariable Long storyId) {
+    public ApiResponse<String> deleteStory(@Parameter(description = "스토리 ID") @PathVariable Long storyId) {
         storyService.deleteStoryWithScenes(storyId);
         return ApiResponse.onSuccess("스토리가 성공적으로 삭제되었습니다.");
     }
@@ -65,17 +83,17 @@ public class StoryController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<String> createCharacter(
-            @PathVariable Long storyId,
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @RequestPart StoryRequestDTO.StoryCharacterInfoRequestDTO request,
             @RequestPart("initCharacterImage") MultipartFile initCharacterImage) {
-        storyService.saveInitialCharacterInfo(storyId, request, initCharacterImage);
-        return ApiResponse.onSuccess("초기 캐릭터 생성이 완료되었습니다.");
+        String imageUrl = storyService.saveInitialCharacterInfo(storyId, request, initCharacterImage);
+        return ApiResponse.onSuccess(imageUrl);
     }
 
     @Operation(summary = "초기 줄거리 생성 API", description = "storyId로 연관된 캐릭터 정보와 사용자 설정(장르, 세계관)을 바탕으로 초기 줄거리를 생성한다.")
     @PostMapping("/{storyId}/init-story")
     public ApiResponse<String> createInitStory(
-            @PathVariable Long storyId,
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @RequestBody StoryRequestDTO.StoryWorldViewRequestDTO request
     ) {
         String initStory = storyService.generateInitScene(storyId, request);
@@ -84,14 +102,18 @@ public class StoryController {
 
     @Operation(summary = "다음 줄거리 생성 API", description = "이전 줄거리를 기반으로 다음 줄거리를 생성한다.")
     @PostMapping("/{storyId}/scenes/{sceneNum}")
-    public ApiResponse<String> createNextStory(@PathVariable Long storyId, @PathVariable int sceneNum) {
+    public ApiResponse<String> createNextStory(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum) {
         String nextStory = storyService.generateNextScene(storyId, sceneNum);
         return ApiResponse.onSuccess(nextStory);
     }
 
     @Operation(summary = "질문 생성 API", description = "이전 줄거리를 기반으로 아이에게 던질 질문을 생성한다.")
     @PostMapping("/{storyId}/scenes/{sceneNum}/question")
-    public ApiResponse<String> createQuestionFromPrevScene(@PathVariable Long storyId, @PathVariable int sceneNum) {
+    public ApiResponse<String> createQuestionFromPrevScene(
+            @Parameter(description = "스토리 ID") @PathVariable Long storyId,
+            @Parameter(description = "장면 번호") @PathVariable int sceneNum) {
         String question = storyService.generateQuestionFromPreviousScene(storyId, sceneNum);
         return ApiResponse.onSuccess(question);
     }
