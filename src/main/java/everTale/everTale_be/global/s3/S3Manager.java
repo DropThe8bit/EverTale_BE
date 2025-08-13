@@ -19,6 +19,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.SdkClientException;
+
+import java.net.URI;
+import java.util.Objects;
+
 
 @Slf4j
 @Component
@@ -153,4 +159,94 @@ public class S3Manager {
             throw new BadRequestHandler(ErrorStatus._BAD_REQUEST);
         }
     }
+
+    /**
+     * 이미지 삭제 (S3 url) - DB에 저장된 전체 URL을 받아 키로 정규화 후 삭제
+     */
+    public void deleteFileByS3Url(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            log.warn("[S3] fileUrl is null or empty");
+            return;
+        }
+
+        String key = normalizeToKey(fileUrl);
+
+        if (key.isBlank()) {
+            log.warn("[S3] normalized key is blank. original={}", fileUrl);
+            return;
+        }
+
+        try {
+            if (!amazonS3.doesObjectExist(bucket, key)) {
+                log.warn("[S3] object not found (idempotent delete). bucket={}, key={}", bucket, key);
+                return;
+            }
+            amazonS3.deleteObject(new DeleteObjectRequest(bucket, key));
+            log.info("[S3] delete success. bucket={}, key={}", bucket, key);
+        } catch (AmazonS3Exception e) {
+            if (e.getStatusCode() == 404) {
+                log.warn("[S3] object already gone. bucket={}, key={}, original={}", bucket, key, fileUrl);
+                return;
+            }
+            log.error("[S3] delete failed (AmazonS3Exception). code={}, message={}, bucket={}, key={}",
+                    e.getStatusCode(), e.getErrorMessage(), bucket, key, e);
+            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+        } catch (SdkClientException e) {
+            log.error("[S3] delete failed (SdkClientException). bucket={}, key={}", bucket, key, e);
+            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+        } catch (Exception e) {
+            log.error("[S3] delete failed (Unexpected). bucket={}, key={}", bucket, key, e);
+            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+        }
+    }
+
+    private String normalizeToKey(String pathOrUrl) {
+        String p = pathOrUrl.trim();
+
+        int q = p.indexOf('?');
+        if (q != -1) p = p.substring(0, q);
+
+        if (p.startsWith("s3://")) {
+            int firstSlash = p.indexOf('/', "s3://".length());
+            if (firstSlash != -1 && firstSlash + 1 < p.length()) {
+                String afterBucket = p.substring(firstSlash + 1);
+                return stripLeadingSlash(afterBucket);
+            }
+            return "";
+        }
+
+        if (p.startsWith("http://") || p.startsWith("https://")) {
+            try {
+                URI u = URI.create(p);
+                String host = Objects.toString(u.getHost(), "");
+                String path = stripLeadingSlash(Objects.toString(u.getPath(), ""));
+
+                if (host.equalsIgnoreCase(bucket + ".s3." + region + ".amazonaws.com")) {
+                    return path;
+                }
+
+                if (host.equalsIgnoreCase("s3." + region + ".amazonaws.com") && !path.isEmpty()) {
+                    String[] seg = path.split("/", 2);
+                    if (seg.length == 2 && seg[0].equals(bucket)) {
+                        return seg[1];
+                    }
+                }
+
+                return path;
+            } catch (Exception e) {
+                log.warn("[S3] URL parse failed. treat as key. original={}", p, e);
+                return stripLeadingSlash(p);
+            }
+        }
+
+        return stripLeadingSlash(p);
+    }
+
+    private String stripLeadingSlash(String s) {
+        if (s == null || s.isEmpty()) return "";
+        int i = 0;
+        while (i < s.length() && s.charAt(i) == '/') i++;
+        return (i == 0) ? s : s.substring(i);
+    }
+
 }
