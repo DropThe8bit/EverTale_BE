@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.GeneralException;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.entity.Uuid;
 import everTale.everTale_be.global.repository.UuidRepository;
@@ -166,37 +167,29 @@ public class S3Manager {
     public void deleteFileByS3Url(String fileUrl) {
         if (fileUrl == null || fileUrl.isBlank()) {
             log.warn("[S3] fileUrl is null or empty");
-            return;
+            throw new GeneralException(ErrorStatus.S3_FILE_INVALID_URL);
         }
 
         String key = normalizeToKey(fileUrl);
 
         if (key.isBlank()) {
             log.warn("[S3] normalized key is blank. original={}", fileUrl);
-            return;
+            throw new GeneralException(ErrorStatus.S3_FILE_INVALID_URL);
         }
 
         try {
-            if (!amazonS3.doesObjectExist(bucket, key)) {
-                log.warn("[S3] object not found (idempotent delete). bucket={}, key={}", bucket, key);
-                return;
-            }
             amazonS3.deleteObject(new DeleteObjectRequest(bucket, key));
             log.info("[S3] delete success. bucket={}, key={}", bucket, key);
         } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
-                log.warn("[S3] object already gone. bucket={}, key={}, original={}", bucket, key, fileUrl);
-                return;
-            }
             log.error("[S3] delete failed (AmazonS3Exception). code={}, message={}, bucket={}, key={}",
                     e.getStatusCode(), e.getErrorMessage(), bucket, key, e);
-            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+            throw new GeneralException(ErrorStatus.S3_FILE_DELETE_FAILED);
         } catch (SdkClientException e) {
             log.error("[S3] delete failed (SdkClientException). bucket={}, key={}", bucket, key, e);
-            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+            throw new GeneralException(ErrorStatus.S3_FILE_DELETE_FAILED);
         } catch (Exception e) {
             log.error("[S3] delete failed (Unexpected). bucket={}, key={}", bucket, key, e);
-            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+            throw new GeneralException(ErrorStatus.S3_FILE_DELETE_FAILED);
         }
     }
 
