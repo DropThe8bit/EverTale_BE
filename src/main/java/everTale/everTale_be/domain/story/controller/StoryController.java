@@ -138,10 +138,11 @@ public class StoryController {
         return ApiResponse.onSuccess(responseDto);
     }
 
-    @Operation(summary = "내 스토리 목록 조회", description = "현재 접속한 프로필 사용자의 스토리를 페이징 형식으로 조회합니다.")
-    @GetMapping("/my")
-    public ApiResponse<StoryCollectionResponseDto> getMyStories(@PageableDefault(size = 8) Pageable pageable) {
-        StoryCollectionResponseDto responseDto = storyService.getMyStories(pageable);
+    @Operation(summary = "프로필 사용자의 스토리 목록 조회", description = "현재 접속한 프로필 사용자의 스토리를 페이징 형식으로 조회합니다.")
+    @GetMapping("/{profileId}")
+    public ApiResponse<StoryCollectionResponseDto> getMyStories(@Parameter(description = "프로필 ID") @PathVariable Long profileId,
+                                                                @PageableDefault(size = 8) Pageable pageable) {
+        StoryCollectionResponseDto responseDto = storyService.getStories(profileId, pageable);
         return ApiResponse.onSuccess(responseDto);
     }
 }
