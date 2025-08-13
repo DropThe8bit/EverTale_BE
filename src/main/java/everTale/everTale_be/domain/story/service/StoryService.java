@@ -95,6 +95,14 @@ public class StoryService {
             s3Manager.deleteFileByS3Url(story.getImageUrl());
         }
 
+        // 스토리 주인공 이미지
+        if (story.getCharacter() != null) {
+            String charImgUrl = story.getCharacter().getImageUrl();
+            if (charImgUrl != null && !charImgUrl.isBlank()) {
+                s3Manager.deleteFileByS3Url(charImgUrl);
+            }
+        }
+
         // 씬 이미지들 삭제
         List<Scene> scenes = sceneRepository.findByStoryIdOrderByPageAsc(story.getId());
         Set<String> sceneImageUrls = new HashSet<>();
