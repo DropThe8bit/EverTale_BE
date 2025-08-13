@@ -167,14 +167,14 @@ public class S3Manager {
     public void deleteFileByS3Url(String fileUrl) {
         if (fileUrl == null || fileUrl.isBlank()) {
             log.warn("[S3] fileUrl is null or empty");
-            throw new GeneralException(ErrorStatus.S3_FILE_INVALID_URL);
+            throw new BadRequestHandler(ErrorStatus.S3_FILE_INVALID_URL);
         }
 
         String key = normalizeToKey(fileUrl);
 
         if (key.isBlank()) {
             log.warn("[S3] normalized key is blank. original={}", fileUrl);
-            throw new GeneralException(ErrorStatus.S3_FILE_INVALID_URL);
+            throw new BadRequestHandler(ErrorStatus.S3_FILE_INVALID_URL);
         }
 
         try {
