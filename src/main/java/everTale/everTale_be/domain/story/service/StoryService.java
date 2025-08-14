@@ -72,8 +72,8 @@ public class StoryService {
 
 
     @Transactional
-    public String updateSceneContent(Long storyId, int sceneNum, String updatedContent) {
-        Scene scene = findMyScene(storyId, sceneNum);
+    public String updateSceneContent(Long storyId, int pageNum, String updatedContent) {
+        Scene scene = findMyScene(storyId, pageNum);
         scene.updateContent(updatedContent);
         return updatedContent;
     }
@@ -182,7 +182,6 @@ public class StoryService {
 
         // 3. FastAPI 요청용 JSON 만들기
         StoryRequestDTO.FastApiInitStoryRequestDTO requestDto = StoryRequestDTO.FastApiInitStoryRequestDTO.builder()
-                .title(story.getTitle())
                 .genre(request.getGenre().name())
                 .worldView(request.getWorldView())
                 .name(storyCharacter.getName())
@@ -214,9 +213,9 @@ public class StoryService {
 
     // 이전 장면 기반 다음 줄거리 생성
     @Transactional
-    public String generateNextScene(Long storyId, int sceneNum) {
+    public String generateNextScene(Long storyId, int pageNum) {
         // 1. 이전 줄거리 조회
-        Scene prevScene = findMyScene(storyId, sceneNum-1);
+        Scene prevScene = findMyScene(storyId, pageNum-1);
         String previousContent = prevScene.getContent();
 
         // 2. Story & Character 조회
@@ -232,9 +231,8 @@ public class StoryService {
         StoryRequestDTO.NextStoryGenerateRequestDTO dto =
                 StoryRequestDTO.NextStoryGenerateRequestDTO.builder()
                         .previous(previousContent)
-                        .sceneNum(sceneNum)
+                        .pageNum(pageNum)
                         .genre(story.getGenre().name())
-                        .title(story.getTitle())
                         .name(character.getName())
                         .age(character.getAge())
                         .gender(character.getGender().name())
@@ -246,7 +244,7 @@ public class StoryService {
 
         // 6. 새 Scene 저장
         Scene newScene = Scene.builder()
-                .page(sceneNum)
+                .page(pageNum)
                 .content(nextContent)
                 .build();
         story.addScene(newScene);
@@ -256,22 +254,22 @@ public class StoryService {
 
     // 이전 장면 기반 질문 생성
     @Transactional(readOnly = true)
-    public String generateQuestionFromPreviousScene(Long storyId, int sceneNum) {
-        Scene prevScene = findMyScene(storyId, sceneNum - 1);
+    public String generateQuestionFromPreviousScene(Long storyId, int pageNum) {
+        Scene prevScene = findMyScene(storyId, pageNum - 1);
         return storyApiClient.callFastApiForQuestion(prevScene.getContent());
     }
 
     // 아이의 대답 기반 다음 줄거리 생성
     @Transactional
-    public String generateNextSceneWithAnswer(Long storyId, int sceneNum, String answer) {
-        Scene prevScene = findMyScene(storyId, sceneNum - 1);
+    public String generateNextSceneWithAnswer(Long storyId, int pageNum, String answer) {
+        Scene prevScene = findMyScene(storyId, pageNum - 1);
 
         String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
 
         Story story = prevScene.getStory();
 
         Scene newScene = Scene.builder()
-                .page(sceneNum)
+                .page(pageNum)
                 .content(nextContent)
                 .build();
         story.addScene(newScene);
@@ -279,8 +277,8 @@ public class StoryService {
     }
     // 줄거리 및 아이그림 기반 그림 생성
     @Transactional
-    public String generateImageFromSketch(Long storyId, int sceneNum, MultipartFile sketch) {
-        Scene scene = findMyScene(storyId, sceneNum);
+    public String generateImageFromSketch(Long storyId, int pageNum, MultipartFile sketch) {
+        Scene scene = findMyScene(storyId, pageNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, scene.getStory().getGenre().name());
@@ -291,8 +289,8 @@ public class StoryService {
 
     // 줄거리 기반 그림 생성
     @Transactional
-    public String generateImageFromPrompt(Long storyId, int sceneNum) {
-        Scene scene = findMyScene(storyId, sceneNum);
+    public String generateImageFromPrompt(Long storyId, int pageNum) {
+        Scene scene = findMyScene(storyId, pageNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, scene.getStory().getGenre().name());
@@ -301,9 +299,9 @@ public class StoryService {
         return imageUrl;
     }
 
-    private Scene findMyScene(Long storyId, int sceneNum){
+    private Scene findMyScene(Long storyId, int pageNum){
         Long profileId = profileHelper.getAuthenticatedProfileId();
-        return sceneRepository.findByStoryIdAndPageAndStoryProfileId(storyId, sceneNum, profileId)
+        return sceneRepository.findByStoryIdAndPageAndStoryProfileId(storyId, pageNum, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
     }
     private Story findMyStory(Long storyId) {

@@ -29,7 +29,7 @@ public class StoryController {
     @GetMapping("/{storyId}/scenes/{pageNum}")
     public ApiResponse<SceneResponseDTO> getSceneBySceneNum(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int pageNum
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum
     ) {
         SceneResponseDTO scene = storyService.getSceneBySceneNum(storyId, pageNum);
         return ApiResponse.onSuccess(scene);
@@ -53,13 +53,13 @@ public class StoryController {
     }
 
     @Operation(summary = "줄거리 수정 API", description = "특정 장면의 줄거리를 사용자가 수정한 내용으로 업데이트한다.")
-    @PatchMapping("/{storyId}/scenes/{sceneNum}")
+    @PatchMapping("/{storyId}/scenes/{pageNum}")
     public ApiResponse<String> updateSceneContent(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
             @RequestBody StoryRequestDTO.StoryUpdateRequestDTO request
     ) {
-        String updatedContent = storyService.updateSceneContent(storyId, sceneNum, request.getUpdatedContent());
+        String updatedContent = storyService.updateSceneContent(storyId, pageNum, request.getUpdatedContent());
         return ApiResponse.onSuccess(updatedContent);
     }
 
@@ -101,55 +101,55 @@ public class StoryController {
     }
 
     @Operation(summary = "다음 줄거리 생성 API", description = "이전 줄거리를 기반으로 다음 줄거리를 생성한다.")
-    @PostMapping("/{storyId}/scenes/{sceneNum}")
+    @PostMapping("/{storyId}/scenes/{pageNum}")
     public ApiResponse<String> createNextStory(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum) {
-        String nextStory = storyService.generateNextScene(storyId, sceneNum);
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum) {
+        String nextStory = storyService.generateNextScene(storyId, pageNum);
         return ApiResponse.onSuccess(nextStory);
     }
 
     @Operation(summary = "질문 생성 API", description = "이전 줄거리를 기반으로 아이에게 던질 질문을 생성한다.")
-    @PostMapping("/{storyId}/scenes/{sceneNum}/question")
+    @PostMapping("/{storyId}/scenes/{pageNum}/question")
     public ApiResponse<String> createQuestionFromPrevScene(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum) {
-        String question = storyService.generateQuestionFromPreviousScene(storyId, sceneNum);
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum) {
+        String question = storyService.generateQuestionFromPreviousScene(storyId, pageNum);
         return ApiResponse.onSuccess(question);
     }
 
     @Operation(summary = "답변 기반 다음 줄거리 생성 API", description = "아이의 답변을 기반으로 다음 줄거리를 생성한다.")
-    @PostMapping("/{storyId}/scenes/{sceneNum}/next-from-answer")
+    @PostMapping("/{storyId}/scenes/{pageNum}/next-from-answer")
     public ApiResponse<String> createNextSceneFromAnswer(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
             @RequestBody StoryRequestDTO.StoryAnswerRequestDTO request
     ) {
-        String nextStory = storyService.generateNextSceneWithAnswer(storyId, sceneNum, request.getAnswer());
+        String nextStory = storyService.generateNextSceneWithAnswer(storyId, pageNum, request.getAnswer());
         return ApiResponse.onSuccess(nextStory);
     }
     @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 줄거리를 기반으로 이미지를 생성합니다.")
     @PostMapping(
-            value = "/{storyId}/scenes/{sceneNum}/controlnet",
+            value = "/{storyId}/scenes/{pageNum}/controlnet",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<String> createImageFromSketch(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum,
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
             @Parameter(description = "스케치 이미지 파일", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
             @RequestPart("sketch") MultipartFile sketch
     ) {
-        String image = storyService.generateImageFromSketch(storyId, sceneNum, sketch);
+        String image = storyService.generateImageFromSketch(storyId, pageNum, sketch);
         return ApiResponse.onSuccess(image);
     }
 
     @Operation(summary = "줄거리 기반 이미지 생성 API", description = "줄거리 텍스트만을 기반으로 이미지를 생성합니다.")
-    @PostMapping( "/{storyId}/scenes/{sceneNum}/dalle")
+    @PostMapping( "/{storyId}/scenes/{pageNum}/dalle")
     public ApiResponse<String> createImageFromPrompt(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum
     ) {
-        String image = storyService.generateImageFromPrompt(storyId, sceneNum);
+        String image = storyService.generateImageFromPrompt(storyId, pageNum);
         return ApiResponse.onSuccess(image);
     }
 
