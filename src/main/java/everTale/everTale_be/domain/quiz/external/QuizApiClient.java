@@ -5,6 +5,7 @@ import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandle
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,6 +21,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class QuizApiClient {
 
+    @Value("${ai.base-url}")
+    private String fastApiBaseUrl;
+
     private final RestTemplate restTemplate;
 
     public QuizResponse callFastApiForQuestion(String content) {
@@ -31,7 +35,7 @@ public class QuizApiClient {
 
         try {
             ResponseEntity<QuizResponse> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/generate-quiz",
+                    fastApiBaseUrl+"/ai/generate-quiz",
                     entity,
                     QuizResponse.class
             );

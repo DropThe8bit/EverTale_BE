@@ -5,6 +5,7 @@ import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.utils.MultipartInputStreamFileResource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -25,6 +26,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StoryApiClient {
 
+    @Value("${ai.base-url}")
+    private String fastApiBaseUrl;
+
     private final RestTemplate restTemplate;
 
     // 초기 줄거리 생성
@@ -36,7 +40,7 @@ public class StoryApiClient {
 
         try {
             ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/init",
+                    fastApiBaseUrl+"/ai/init",
                     entity,
                     FastApiTextResponseDto.class
             );
@@ -56,7 +60,7 @@ public class StoryApiClient {
     // 다음 줄거리 생성
     public String callFastApiForNextStory(StoryRequestDTO.NextStoryGenerateRequestDTO requestDto) {
         ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
-                "http://localhost:8000/ai/next-story",
+                fastApiBaseUrl+"/ai/next-story",
                 requestDto,
                 FastApiTextResponseDto.class
         );
@@ -73,7 +77,7 @@ public class StoryApiClient {
     public String callFastApiForQuestion(String previousContent) {
         Map<String, String> request = Map.of("previous", previousContent);
         ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
-                "http://localhost:8000/ai/question",
+                fastApiBaseUrl+"/ai/question",
                 request,
                 FastApiTextResponseDto.class
         );
@@ -89,7 +93,7 @@ public class StoryApiClient {
     public String callFastApiForNextStoryWithAnswer(String previousContent, String answer) {
         Map<String, String> request = Map.of("previous", previousContent, "answer", answer);
         ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
-                "http://localhost:8000/ai/next-from-answer",
+                fastApiBaseUrl+"/ai/next-from-answer",
                 request,
                 FastApiTextResponseDto.class
         );
@@ -138,7 +142,7 @@ public class StoryApiClient {
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<FastApiImageResponseDto> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/init-character-image",
+                    fastApiBaseUrl+"/ai/init-character-image",
                     requestEntity,
                     FastApiImageResponseDto.class
             );
@@ -168,7 +172,7 @@ public class StoryApiClient {
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<FastApiImageResponseDto> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/generate-controlnet-image",
+                    fastApiBaseUrl+"/ai/generate-controlnet-image",
                     requestEntity,
                     FastApiImageResponseDto.class
             );
@@ -198,7 +202,7 @@ public class StoryApiClient {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<FastApiImageResponseDto> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/generate-dalle-image",
+                    fastApiBaseUrl+"/ai/generate-dalle-image",
                     requestEntity,
                     FastApiImageResponseDto.class
             );
