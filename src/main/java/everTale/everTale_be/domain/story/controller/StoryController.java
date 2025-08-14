@@ -26,12 +26,12 @@ public class StoryController {
     private final StoryService storyService;
 
     @Operation(summary = "단일 Scene 조회 API", description = "스토리 ID와 씬 번호를 기반으로 해당 씬의 내용을 조회합니다.")
-    @GetMapping("/{storyId}/scenes/{sceneNum}")
+    @GetMapping("/{storyId}/scenes/{pageNum}")
     public ApiResponse<SceneResponseDTO> getSceneBySceneNum(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "장면 번호") @PathVariable int sceneNum
+            @Parameter(description = "장면 번호") @PathVariable int pageNum
     ) {
-        SceneResponseDTO scene = storyService.getSceneBySceneNum(storyId, sceneNum);
+        SceneResponseDTO scene = storyService.getSceneBySceneNum(storyId, pageNum);
         return ApiResponse.onSuccess(scene);
     }
 
