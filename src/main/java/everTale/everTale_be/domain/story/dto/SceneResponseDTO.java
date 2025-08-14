@@ -7,13 +7,15 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SceneResponseDTO {
-    private int sceneNum;
+    private int pageNum;
+    private Long sceneId;
     private String content;
     private String imageUrl;
 
     public static SceneResponseDTO from(Scene scene) {
         return SceneResponseDTO.builder()
-                .sceneNum(scene.getPage())
+                .pageNum(scene.getPage())
+                .sceneId(scene.getId())
                 .content(scene.getContent())
                 .imageUrl(scene.getImageUrl())
                 .build();
