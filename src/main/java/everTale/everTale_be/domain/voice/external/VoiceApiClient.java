@@ -6,6 +6,7 @@ import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandle
 import everTale.everTale_be.global.utils.MultipartInputStreamFileResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VoiceApiClient {
 
+    @Value("${ai.base-url}")
+    private String fastApiBaseUrl;
+
     private final RestTemplate restTemplate;
 
     public String callFastApiToRegisterVoice(MultipartFile file, String voiceName) {
@@ -38,7 +42,7 @@ public class VoiceApiClient {
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<FastApiVoiceResponseDto> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/voice/register",
+                    fastApiBaseUrl+"/ai/voice/register",
                     requestEntity,
                     FastApiVoiceResponseDto.class
             );
@@ -66,7 +70,7 @@ public class VoiceApiClient {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<byte[]> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/voice/play",
+                    fastApiBaseUrl+"/ai/voice/play",
                     requestEntity,
                     byte[].class
             );
@@ -93,7 +97,7 @@ public class VoiceApiClient {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    "http://localhost:8000/ai/voice/delete",
+                    fastApiBaseUrl+"/ai/voice/delete",
                     requestEntity,
                     String.class
             );
