@@ -48,7 +48,7 @@ public class StoryController {
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @Parameter(description = "스토리 제목") @RequestParam String title
     ) {
-        storyService.updateStoryTitle(storyId, title);
+        storyService.updateStoryTitleAndMainImage(storyId, title);
         return ApiResponse.onSuccess(title);
     }
 

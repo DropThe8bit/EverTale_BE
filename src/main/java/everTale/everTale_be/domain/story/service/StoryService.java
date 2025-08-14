@@ -5,6 +5,7 @@ import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.entity.enums.Gender;
 import everTale.everTale_be.domain.character.repository.PersonalityRepository;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.repository.ProfileRepository;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,12 +67,21 @@ public class StoryService {
     }
 
     @Transactional
-    public void updateStoryTitle(Long storyId, String title) {
+    public void updateStoryTitleAndMainImage(Long storyId, String title) {
         Story story = findMyStory(storyId);
+
+        List<Scene> scenesWithImage = sceneRepository.findByStoryIdOrderByPageAsc(storyId)
+                .stream()
+                .filter(s -> s.getImageUrl() != null && !s.getImageUrl().isBlank())
+                .collect(Collectors.toList());
+
+        if (!scenesWithImage.isEmpty()) {
+            Scene randomScene = scenesWithImage.get(new Random().nextInt(scenesWithImage.size()));
+            story.updateImageUrl(randomScene.getImageUrl());
+        }
+
         story.updateTitle(title);
     }
-
-
     @Transactional
     public String updateSceneContent(Long storyId, int pageNum, String updatedContent) {
         Scene scene = findMyScene(storyId, pageNum);
@@ -84,7 +95,6 @@ public class StoryService {
     public void deleteStoryWithScenes(Long storyId) {
         Story story = findMyStory(storyId);
         deleteS3AssetsOf(story);
-        // TODO: 여기에 EasterEggVoice S3 파일 삭제 로직 추가 필요
         storyRepository.delete(story);
     }
 
@@ -103,17 +113,28 @@ public class StoryService {
             }
         }
 
-        // 씬 이미지들 삭제
+        // 씬 이미지 및 보이스파일 삭제
         List<Scene> scenes = sceneRepository.findByStoryIdOrderByPageAsc(story.getId());
         Set<String> sceneImageUrls = new HashSet<>();
+        Set<String> voiceFiles = new HashSet<>();
         for (Scene s : scenes) {
             if (s.getImageUrl() != null && !s.getImageUrl().isBlank()) {
                 sceneImageUrls.add(s.getImageUrl());
             }
-
+            EasterEggVoice voice = s.getEasterEggVoice();
+            if (voice != null) {
+                String voiceFile = voice.getVoiceFile();
+                if (voiceFile != null && !voiceFile.isBlank()) {
+                    voiceFiles.add(voiceFile);
+                }
+            }
         }
         for (String url : sceneImageUrls) {
             s3Manager.deleteFileByS3Url(url);
+        }
+
+        for( String file : voiceFiles){
+            s3Manager.deleteFile(file);
         }
     }
 

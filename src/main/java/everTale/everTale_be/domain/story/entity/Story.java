@@ -58,6 +58,12 @@ public class Story extends BaseTimeEntity {
         this.title = title;
     }
 
+    public void updateImageUrl(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            this.imageUrl = imageUrl;
+        }
+    }
+
     public void addEasterEggLetter(EasterEggLetter letter) {
         this.easterEggLetter = letter;
         letter.updateStory(this);
