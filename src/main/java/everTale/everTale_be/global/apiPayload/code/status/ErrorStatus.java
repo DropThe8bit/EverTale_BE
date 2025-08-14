@@ -40,6 +40,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "UPLOAD400", "파일의 이름에 확장자가 존재하지 않습니다."),
     PICTURE_EXTENSION_ERROR(HttpStatus.BAD_REQUEST, "PICTURE400", "이미지의 확장자가 잘못되었습니다."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "UPLOAD413", "파일 크기가 허용 범위를 초과했습니다."),
+    S3_FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_500","S3 파일 삭제에 실패했습니다."),
+    S3_FILE_INVALID_URL(HttpStatus.BAD_REQUEST,"S3_400", "S3 파일 URL이 유효하지 않습니다."),
 
     // Story 관련 에러
     STORY_NOT_FOUND(HttpStatus.NOT_FOUND, "STORY404", "스토리를 찾을 수 없습니다."),

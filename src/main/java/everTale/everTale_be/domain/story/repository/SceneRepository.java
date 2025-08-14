@@ -16,12 +16,6 @@ public interface SceneRepository extends JpaRepository<Scene, Long> {
     })
     Optional<Scene> findByStoryIdAndPageAndStoryProfileId(Long storyId, int page, Long profileId);
 
-    @EntityGraph(attributePaths = {
-            "story",
-            "story.character",
-            "story.character.characterPersonalities",
-            "story.character.characterPersonalities.personality"
-    })
     Optional<Scene> findByStoryIdAndPage(Long storyId, int page);
 
     List<Scene> findByStoryIdOrderByPageAsc(Long storyId);
