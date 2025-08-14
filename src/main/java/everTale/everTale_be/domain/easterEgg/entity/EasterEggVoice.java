@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.easterEggVoice.entity;
+package everTale.everTale_be.domain.easterEgg.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import everTale.everTale_be.domain.story.entity.Scene;

@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.easterEggVoice.dto.request;
+package everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

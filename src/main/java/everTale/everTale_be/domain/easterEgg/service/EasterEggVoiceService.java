@@ -1,9 +1,9 @@
-package everTale.everTale_be.domain.easterEggVoice.service;
+package everTale.everTale_be.domain.easterEgg.service;
 
-import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRegisterRequestDto;
-import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRequestDto;
-import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
-import everTale.everTale_be.domain.easterEggVoice.repository.EasterEggVoiceRepository;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRegisterRequestDto;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRequestDto;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
+import everTale.everTale_be.domain.easterEgg.repository.EasterEggVoiceRepository;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;

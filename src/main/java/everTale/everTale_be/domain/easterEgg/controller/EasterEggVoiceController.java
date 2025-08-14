@@ -1,8 +1,8 @@
-package everTale.everTale_be.domain.easterEggVoice.controller;
+package everTale.everTale_be.domain.easterEgg.controller;
 
-import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRegisterRequestDto;
-import everTale.everTale_be.domain.easterEggVoice.dto.request.EasterEggVoiceRequestDto;
-import everTale.everTale_be.domain.easterEggVoice.service.EasterEggVoiceService;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRegisterRequestDto;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRequestDto;
+import everTale.everTale_be.domain.easterEgg.service.EasterEggVoiceService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
