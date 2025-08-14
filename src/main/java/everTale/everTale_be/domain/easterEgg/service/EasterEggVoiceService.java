@@ -34,8 +34,7 @@ public class EasterEggVoiceService {
         validateParent();
         Scene scene = findScene(sceneId);
 
-//        String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios"); 추후에 이걸로 수정할 예정
-        String voiceUrl = voiceFile.getOriginalFilename();
+        String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios");
 
         EasterEggVoice voice = EasterEggVoice.builder()
                 .scene(scene)
@@ -56,7 +55,7 @@ public class EasterEggVoiceService {
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.EASTER_EGG_VOICE_NOT_FOUND));
         Scene scene = voice.getScene();
         scene.setEasterEggVoice(null);
-//        s3Manager.deleteFile(voice.getVoiceFile()); 추후에 주석 해제 예정
+        s3Manager.deleteFile(voice.getVoiceFile());
         easterEggVoiceRepository.delete(voice);
         log.info("삭제 완료: audioId = {}", voice.getId());
     }
@@ -75,10 +74,10 @@ public class EasterEggVoiceService {
     private boolean isInsideArea(EasterEggVoice voice, float clickX, float clickY) {
         float xLeft = voice.getXCoordinate() - voice.getWidth();
         float xRight = voice.getXCoordinate() + voice.getWidth();
-        float yTop = voice.getYCoordinate() - voice.getHeight();
-        float yBottom = voice.getYCoordinate() + voice.getHeight();
+        float yTop = voice.getYCoordinate() + voice.getHeight();
+        float yBottom = voice.getYCoordinate() - voice.getHeight();
 
-        return clickX >= xLeft && clickX <= xRight && clickY >= yTop && clickY <= yBottom;
+        return clickX >= xLeft && clickX <= xRight && clickY <= yTop && clickY >= yBottom;
     }
 
     @Transactional(readOnly = true)
