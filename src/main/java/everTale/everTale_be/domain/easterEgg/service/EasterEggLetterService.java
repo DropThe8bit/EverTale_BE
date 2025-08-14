@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +71,7 @@ public class EasterEggLetterService {
         // 자녀의 경우 공개 시간 확인
         if (role == ProfileType.CHILD) {
             if (letter.getAvailableAt() != null &&
-                    LocalDateTime.now().isBefore(letter.getAvailableAt())) {
+                    LocalDate.now().isBefore(letter.getAvailableAt())) {
                 throw new NotFoundHandler(ErrorStatus.EASTER_EGG_LETTER_NOT_YET_AVAILABLE);
             }
         }

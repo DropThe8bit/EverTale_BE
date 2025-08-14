@@ -12,8 +12,6 @@ public class StoryRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StoryCharacterInfoRequestDTO {
-        @Schema(description = "동화 제목", example = "토토로의 모험 여행")
-        private String title;
 
         @Schema(description = "주인공 이름", example = "토토로")
         private String characterName;
@@ -26,6 +24,9 @@ public class StoryRequestDTO {
 
         @Schema(description = "주인공 성격 리스트", example = "[\"용감함\", \"씩씩함\"]")
         private List<String> personalities;
+
+        @Schema(description = "주인공 이미지에 대해 설명해주세요", example = "자연을 좋아하는 요정")
+        private String imageDescription;
 
     }
 

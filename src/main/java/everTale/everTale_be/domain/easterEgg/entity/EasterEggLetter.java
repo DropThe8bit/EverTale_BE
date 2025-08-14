@@ -1,12 +1,13 @@
 package everTale.everTale_be.domain.easterEgg.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -18,6 +19,7 @@ public class EasterEggLetter extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 300)
     private String content;
 
     private int imageNum;
@@ -27,13 +29,13 @@ public class EasterEggLetter extends BaseTimeEntity{
     @JsonBackReference
     private Story story;
 
-    private LocalDateTime availableAt;
+    private LocalDate availableAt;
 
     public void updateStory(Story story) {
         this.story = story;
     }
 
-    public void updateLetter(String content, int imageUrl, LocalDateTime availableAt) {
+    public void updateLetter(String content, int imageUrl, LocalDate availableAt) {
         this.content = content;
         this.imageNum = imageUrl;
         this.availableAt = availableAt;

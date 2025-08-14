@@ -12,6 +12,7 @@ import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
 import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.domain.story.dto.StoryResponseDTO;
 import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.SceneRepository;
@@ -20,6 +21,7 @@ import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.domain.story.external.StoryApiClient;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
+import everTale.everTale_be.global.s3.S3Manager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,17 +45,35 @@ public class StoryService {
     private final ProfileRepository profileRepository;
     private final StoryApiClient storyApiClient;
     private final ProfileHelper profileHelper;
+    private final S3Manager s3Manager;
 
     // Scene 단일 조회
     @Transactional(readOnly = true)
     public SceneResponseDTO getSceneBySceneNum(Long storyId, int sceneNum) {
-        Scene scene = findScene(storyId, sceneNum);
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
         return SceneResponseDTO.from(scene);
     }
 
+    // Story 단일 조회
+    @Transactional(readOnly = true)
+    public StoryResponseDTO.StoryScenesResponseDTO getScenesOfStory(Long storyId) {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
+        var scenes = sceneRepository.findByStoryIdOrderByPageAsc(storyId);
+        return StoryResponseDTO.StoryScenesResponseDTO.of(story, scenes);
+    }
+
+    @Transactional
+    public void updateStoryTitle(Long storyId, String title) {
+        Story story = findMyStory(storyId);
+        story.updateTitle(title);
+    }
+
+
     @Transactional
     public String updateSceneContent(Long storyId, int sceneNum, String updatedContent) {
-        Scene scene = findScene(storyId, sceneNum);
+        Scene scene = findMyScene(storyId, sceneNum);
         scene.updateContent(updatedContent);
         return updatedContent;
     }
@@ -60,8 +82,39 @@ public class StoryService {
     // 스토리 삭제
     @Transactional
     public void deleteStoryWithScenes(Long storyId) {
-        Story story = findStory(storyId);
+        Story story = findMyStory(storyId);
+        deleteS3AssetsOf(story);
+        // TODO: 여기에 EasterEggVoice S3 파일 삭제 로직 추가 필요
         storyRepository.delete(story);
+    }
+
+    // 스토리/씬에 연결된 모든 S3 객체를 삭제
+    private void deleteS3AssetsOf(Story story) {
+        // 스토리 대표 이미지
+        if (story.getImageUrl() != null && !story.getImageUrl().isBlank()) {
+            s3Manager.deleteFileByS3Url(story.getImageUrl());
+        }
+
+        // 스토리 주인공 이미지
+        if (story.getCharacter() != null) {
+            String charImgUrl = story.getCharacter().getImageUrl();
+            if (charImgUrl != null && !charImgUrl.isBlank()) {
+                s3Manager.deleteFileByS3Url(charImgUrl);
+            }
+        }
+
+        // 씬 이미지들 삭제
+        List<Scene> scenes = sceneRepository.findByStoryIdOrderByPageAsc(story.getId());
+        Set<String> sceneImageUrls = new HashSet<>();
+        for (Scene s : scenes) {
+            if (s.getImageUrl() != null && !s.getImageUrl().isBlank()) {
+                sceneImageUrls.add(s.getImageUrl());
+            }
+
+        }
+        for (String url : sceneImageUrls) {
+            s3Manager.deleteFileByS3Url(url);
+        }
     }
 
 
@@ -78,17 +131,17 @@ public class StoryService {
 
     //초기 캐릭터 설정
     @Transactional
-    public void saveInitialCharacterInfo(Long storyId,
+    public String saveInitialCharacterInfo(Long storyId,
                                          StoryRequestDTO.StoryCharacterInfoRequestDTO request,
                                          MultipartFile initCharacterImage) {
-        Story story = findStory(storyId);
-        story.updateTitle(request.getTitle());
+        Story story = findMyStory(storyId);
+        String imageUrl = storyApiClient.callFastApiForInitCharacterImageFromSketch(initCharacterImage, request);
 
         // StoryCharacter 생성
         StoryCharacter character = StoryCharacter.builder()
                 .name(request.getCharacterName())
                 .age(request.getAge())
-                .imageUrl(initCharacterImage.getOriginalFilename())
+                .imageUrl(imageUrl)
                 .gender(Gender.valueOf(request.getGender().toUpperCase()))
                 .build();
 
@@ -105,6 +158,8 @@ public class StoryService {
 
         // 스토리에 캐릭터 연결
         story.setCharacter(character);
+
+        return imageUrl;
     }
 
 
@@ -112,7 +167,7 @@ public class StoryService {
     @Transactional
     public String generateInitScene(Long storyId, StoryRequestDTO.StoryWorldViewRequestDTO request) {
         // 1. storyId로 스토리 조회
-        Story story = findStory(storyId);
+        Story story = findMyStory(storyId);
 
         // 2. 연결된 캐릭터 가져오기
         StoryCharacter storyCharacter = story.getCharacter();
@@ -161,7 +216,7 @@ public class StoryService {
     @Transactional
     public String generateNextScene(Long storyId, int sceneNum) {
         // 1. 이전 줄거리 조회
-        Scene prevScene = findScene(storyId, sceneNum-1);
+        Scene prevScene = findMyScene(storyId, sceneNum-1);
         String previousContent = prevScene.getContent();
 
         // 2. Story & Character 조회
@@ -202,14 +257,14 @@ public class StoryService {
     // 이전 장면 기반 질문 생성
     @Transactional(readOnly = true)
     public String generateQuestionFromPreviousScene(Long storyId, int sceneNum) {
-        Scene prevScene = findScene(storyId, sceneNum - 1);
+        Scene prevScene = findMyScene(storyId, sceneNum - 1);
         return storyApiClient.callFastApiForQuestion(prevScene.getContent());
     }
 
     // 아이의 대답 기반 다음 줄거리 생성
     @Transactional
     public String generateNextSceneWithAnswer(Long storyId, int sceneNum, String answer) {
-        Scene prevScene = findScene(storyId, sceneNum - 1);
+        Scene prevScene = findMyScene(storyId, sceneNum - 1);
 
         String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
 
@@ -225,7 +280,7 @@ public class StoryService {
     // 줄거리 및 아이그림 기반 그림 생성
     @Transactional
     public String generateImageFromSketch(Long storyId, int sceneNum, MultipartFile sketch) {
-        Scene scene = findScene(storyId, sceneNum);
+        Scene scene = findMyScene(storyId, sceneNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, scene.getStory().getGenre().name());
@@ -237,7 +292,7 @@ public class StoryService {
     // 줄거리 기반 그림 생성
     @Transactional
     public String generateImageFromPrompt(Long storyId, int sceneNum) {
-        Scene scene = findScene(storyId, sceneNum);
+        Scene scene = findMyScene(storyId, sceneNum);
 
         String prompt = scene.getContent();
         String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, scene.getStory().getGenre().name());
@@ -246,12 +301,12 @@ public class StoryService {
         return imageUrl;
     }
 
-    private Scene findScene(Long storyId, int sceneNum){
+    private Scene findMyScene(Long storyId, int sceneNum){
         Long profileId = profileHelper.getAuthenticatedProfileId();
         return sceneRepository.findByStoryIdAndPageAndStoryProfileId(storyId, sceneNum, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
     }
-    private Story findStory(Long storyId) {
+    private Story findMyStory(Long storyId) {
         Long profileId = profileHelper.getAuthenticatedProfileId();
         return storyRepository.findByIdAndProfileId(storyId, profileId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.STORY_NOT_FOUND));
