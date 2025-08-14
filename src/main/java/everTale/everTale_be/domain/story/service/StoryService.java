@@ -49,8 +49,8 @@ public class StoryService {
 
     // Scene 단일 조회
     @Transactional(readOnly = true)
-    public SceneResponseDTO getSceneBySceneNum(Long storyId, int sceneNum) {
-        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, sceneNum)
+    public SceneResponseDTO getSceneBySceneNum(Long storyId, int pageNum) {
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, pageNum)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
         return SceneResponseDTO.from(scene);
     }
