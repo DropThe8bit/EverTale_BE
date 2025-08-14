@@ -37,14 +37,11 @@ public class StoryRequestDTO {
         @Schema(description = "이전 줄거리", example = "여행을 좋아하는 토토로는 숲으로 향했어요. 숲에서는 신비한 친구가 기다리고 있었어요.")
         private String previous;
 
-        @Schema(description = "장면 번호", example = "2")
-        private int sceneNum;
+        @Schema(description = "페이지 번호(1~8)", example = "2")
+        private int pageNum;
 
         @Schema(description = "장르", example = "ADVENTURE")
         private String genre;
-
-        @Schema(description = "동화 제목", example = "토토로의 모험 여행")
-        private String title;
 
         @Schema(description = "주인공 이름", example = "토토로")
         private String name;
@@ -90,7 +87,6 @@ public class StoryRequestDTO {
     @Getter
     @Builder
     public static class FastApiInitStoryRequestDTO {
-        private String title;
         private String genre;
         private String worldView;
         private String name;
