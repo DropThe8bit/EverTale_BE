@@ -77,14 +77,6 @@ public class EasterEggVoiceService {
         float yTop = voice.getYCoordinate() + voice.getHeight();
         float yBottom = voice.getYCoordinate() - voice.getHeight();
 
-        log.info("x좌표: {}", clickX);
-        log.info("y좌표: {}", clickY);
-        log.info("왼쪽 x좌표: {}", xLeft);
-        log.info("오른쪽 x좌표: {}", xRight);
-        log.info("아래 y좌표: {}", yBottom);
-        log.info("위 y좌표: {}", yTop);
-        boolean isThere = clickX >= xLeft && clickX <= xRight && clickY <= yTop && clickY >= yBottom;
-        log.info("isThere: {}", isThere);
         return clickX >= xLeft && clickX <= xRight && clickY <= yTop && clickY >= yBottom;
     }
 
