@@ -1,7 +1,7 @@
 package everTale.everTale_be.domain.story.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
 import everTale.everTale_be.domain.quiz.entity.Quiz;
 import jakarta.persistence.*;
 import lombok.*;

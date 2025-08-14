@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.easterEggLetter.dto;
+package everTale.everTale_be.domain.easterEgg.dto.easterEggLetter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;

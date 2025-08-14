@@ -1,8 +1,8 @@
-package everTale.everTale_be.domain.easterEggLetter.controller;
+package everTale.everTale_be.domain.easterEgg.controller;
 
-import everTale.everTale_be.domain.easterEggLetter.dto.EasterEggLetterRequestDTO;
-import everTale.everTale_be.domain.easterEggLetter.dto.EasterEggLetterResponseDTO;
-import everTale.everTale_be.domain.easterEggLetter.service.EasterEggLetterService;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterRequestDTO;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterResponseDTO;
+import everTale.everTale_be.domain.easterEgg.service.EasterEggLetterService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

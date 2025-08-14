@@ -1,6 +1,6 @@
-package everTale.everTale_be.domain.easterEggLetter.dto;
+package everTale.everTale_be.domain.easterEgg.dto.easterEggLetter;
 
-import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggLetter;
 import lombok.*;
 
 import java.time.LocalDate;

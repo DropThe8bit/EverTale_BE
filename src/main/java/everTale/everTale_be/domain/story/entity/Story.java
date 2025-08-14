@@ -2,7 +2,7 @@ package everTale.everTale_be.domain.story.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
-import everTale.everTale_be.domain.easterEggLetter.entity.EasterEggLetter;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggLetter;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.global.entity.BaseTimeEntity;

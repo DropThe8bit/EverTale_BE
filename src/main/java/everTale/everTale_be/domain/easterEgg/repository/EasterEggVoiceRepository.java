@@ -1,6 +1,6 @@
-package everTale.everTale_be.domain.easterEggVoice.repository;
+package everTale.everTale_be.domain.easterEgg.repository;
 
-import everTale.everTale_be.domain.easterEggVoice.entity.EasterEggVoice;
+import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
