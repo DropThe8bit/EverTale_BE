@@ -2,9 +2,12 @@ package everTale.everTale_be.domain.easterEgg.service;
 
 import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterRequestDTO;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterResponseDTO;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterStoriesResponseDto;
 import everTale.everTale_be.domain.easterEgg.entity.EasterEggLetter;
+import everTale.everTale_be.domain.easterEgg.repository.EasterEggLetterRepository;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.StoryRepository;
@@ -13,6 +16,8 @@ import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandle
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +30,8 @@ public class EasterEggLetterService {
 
     private final StoryRepository storyRepository;
     private final ProfileHelper profileHelper;
+    private final EasterEggLetterRepository easterEggLetterRepository;
+    private final ProfileService profileService;
 
     // 이스터에그 편지 생성
     @Transactional
@@ -126,6 +133,25 @@ public class EasterEggLetterService {
         return letter;
     }
 
+    public EasterEggLetterStoriesResponseDto getStoriesWithEasterEggLetter(Long profileId, Pageable pageable){
+        Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
+        profileService.validateParentProfileAccess(profile, profileId);
+
+        Page<Story> withLetter = easterEggLetterRepository.findStoriesWithEasterEggLetter(profileId, pageable);
+
+        return EasterEggLetterStoriesResponseDto.of(withLetter);
+    }
+
+    public EasterEggLetterStoriesResponseDto getStoriesWithoutEasterEggLetter(Long profileId, Pageable pageable){
+        Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
+        profileService.validateParentProfileAccess(profile, profileId);
+
+        Page<Story> withoutLetter = easterEggLetterRepository.findStoriesWithoutEasterEggLetter(profileId, pageable);
+
+        return EasterEggLetterStoriesResponseDto.of(withoutLetter);
+    }
 }
 
 
