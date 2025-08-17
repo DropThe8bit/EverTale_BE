@@ -7,6 +7,10 @@ import everTale.everTale_be.auth.dto.response.UserInfoResponseDto;
 import everTale.everTale_be.auth.jwt.JwtProvider;
 import everTale.everTale_be.auth.jwt.JwtUtil;
 import everTale.everTale_be.auth.util.UserHelper;
+import everTale.everTale_be.domain.profile.dto.response.ProfileEnterResponseDto;
+import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.profile.repository.ProfileRepository;
+import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.user.entity.Enum.LoginProvider;
 import everTale.everTale_be.domain.user.entity.User;
 import everTale.everTale_be.domain.user.repository.UserRepository;
@@ -25,11 +29,14 @@ import java.util.Optional;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
     private final TokenAuthService tokenAuthService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final NaverService naverService;
     private final UserHelper userHelper;
+    private final ProfileHelper profileHelper;
+    private final ProfileRepository profileRepository;
 
     // 일반 회원가입
     public void signup(SignUpRequestDto requestDto) {
@@ -97,20 +104,54 @@ public class AuthService {
 
     // 로그아웃
     public void logout(String accessToken) {
-        Long userId = userHelper.getRootUserId();
         tokenAuthService.validateNotBlackListed(accessToken);
-
         tokenAuthService.addToBlackListForAccessToken(accessToken, "LOGOUT");
-        tokenAuthService.deleteRefreshToken(userId);
     }
 
     // 회원 탈퇴
     public void withdraw(String accessToken) {
         Long userId = userHelper.getRootUserId();
         tokenAuthService.validateNotBlackListed(accessToken);
+        tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
+        userRepository.anonymizeUser(userId);
+    }
+
+    public ProfileEnterResponseDto reissueWithProfile(String refreshToken) {
+        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
+        Long profileId = jwtProvider.getProfileIdFromToken(refreshToken);
+
+        String storedRefreshToken = tokenAuthService.getRefreshToken(profileId);
+        if (!storedRefreshToken.equals(refreshToken)) {
+            throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
+        }
+
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_PROFILE));
+        String newAccessToken = jwtUtil.generateAccessTokenWithProfile(userId, profile.getId());
+        String newRefreshToken = jwtUtil.generateRefreshTokenWithProfile(userId, profile.getId());
+        tokenAuthService.saveRefreshToken(profileId, newRefreshToken);
+
+        return ProfileEnterResponseDto.from(profile, newAccessToken, newRefreshToken, jwtUtil);
+    }
+
+    // 프로필 나가기 (프로필 로그아웃)
+    public void logoutProfile(String accessToken){
+        Long profileId = profileHelper.getAuthenticatedProfileId();
+        tokenAuthService.validateNotBlackListed(accessToken);
+
+        tokenAuthService.addToBlackListForAccessToken(accessToken, "LOGOUT");
+        tokenAuthService.deleteRefreshToken(profileId);
+    }
+
+    // 프로필 삭제 (회원 탈퇴 X)
+    public void deleteProfile(String accessToken){
+        Long profileId = profileHelper.getAuthenticatedProfileId();
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_PROFILE));
+        profile.deleteProfile();
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
-        tokenAuthService.deleteRefreshToken(userId);
-        userRepository.anonymizeUser(userId);
+        tokenAuthService.deleteRefreshToken(profileId);
+        profileRepository.anonymizeProfile(profileId);
     }
 }

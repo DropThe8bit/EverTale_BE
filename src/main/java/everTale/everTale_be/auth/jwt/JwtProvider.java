@@ -65,6 +65,11 @@ public class JwtProvider {
         return claims.get("userId", Long.class);
     }
 
+    public Long getProfileIdFromToken(String token) {
+        Claims claims = jwtUtil.extractClaims(token);
+        return claims.get("profileId", Long.class);
+    }
+
     public boolean isTokenContainsProfileId(String token) {
         Claims claims = jwtUtil.extractClaims(token);
         return claims.containsKey("profileId");

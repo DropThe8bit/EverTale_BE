@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.profile.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.user.entity.User;
@@ -29,12 +30,13 @@ public class ChildProfileRequestDto {
     @Schema(description = "자녀 기관명", example = "새싹 유치원")
     private String institution;
 
-    public Profile toEntity(User user, ProfileType profileType){
+    public Profile toEntity(User user, ProfileType profileType, ProfileStatus profileStatus){
         return Profile.builder()
                 .name(name)
                 .birthDate(birthDate)
                 .institution(institution)
                 .profileType(profileType)
+                .profileStatus(profileStatus)
                 .user(user)
                 .build();
     }
