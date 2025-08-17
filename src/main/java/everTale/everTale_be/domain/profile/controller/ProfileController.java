@@ -11,7 +11,6 @@ import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -85,15 +84,5 @@ public class ProfileController {
     public ApiResponse<String> updatePassword(@Valid @RequestBody PasswordUpdateRequestDto requestDto) {
         profileService.updatePassword(requestDto);
         return ApiResponse.onSuccess("비밀번호가 성공적으로 수정되었습니다.");
-    }
-
-    // 프로필 삭제
-    @Operation(summary = "프로필 삭제", description = "선택한 프로필을 삭제합니다.")
-    @DeleteMapping
-    public ApiResponse<String> deleteProfile(HttpServletRequest request){
-        String accessToken = jwtUtil.extractAccessToken(request);
-
-        profileService.deleteProfile(accessToken);
-        return ApiResponse.onSuccess("프로필이 성공적으로 삭제되었습니다.");
     }
 }

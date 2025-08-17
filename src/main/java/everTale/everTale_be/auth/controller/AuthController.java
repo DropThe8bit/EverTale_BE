@@ -49,13 +49,6 @@ public class AuthController {
         return ApiResponse.onSuccess(responseDto);
     }
 
-    @PostMapping("/profile/reissue")
-    @Operation(summary = "프로필 기반 AccessToken 재발급", description = "만료된 access token을 refresh token으로 재발급합니다.")
-    public ApiResponse<ProfileEnterResponseDto> reissueProfileAccessToken(@Valid @RequestBody ProfileReissueRequestDto requestDto) {
-        ProfileEnterResponseDto responseDto = profileService.reissueWithProfile(requestDto.getRefreshToken(), requestDto.getProfileId());
-        return ApiResponse.onSuccess(responseDto);
-    }
-
     // 로그아웃
     @Operation(summary = "로그아웃", description = "현재 로그인한 사용자의 토큰을 만료 처리합니다.")
     @PostMapping("/logout")
@@ -74,5 +67,32 @@ public class AuthController {
 
         authService.withdraw(accessToken);
         return ApiResponse.onSuccess("회원 탈퇴가 성공적으로 완료되었습니다.");
+    }
+
+    @PostMapping("/profile/reissue")
+    @Operation(summary = "프로필 기반 AccessToken 재발급", description = "만료된 access token을 refresh token으로 재발급합니다.")
+    public ApiResponse<ProfileEnterResponseDto> reissueProfileAccessToken(@Valid @RequestBody ProfileReissueRequestDto requestDto) {
+        ProfileEnterResponseDto responseDto = authService.reissueWithProfile(requestDto.getRefreshToken());
+        return ApiResponse.onSuccess(responseDto);
+    }
+
+    // 프로필 로그아웃
+    @Operation(summary = "프로필 로그아웃", description = "선택한 프로필에서 로그아웃합니다.")
+    @DeleteMapping("/profile/logout")
+    public ApiResponse<String> logoutProfile(HttpServletRequest request){
+        String accessToken = jwtUtil.extractAccessToken(request);
+
+        authService.logoutProfile(accessToken);
+        return ApiResponse.onSuccess("로그아웃이 성공적으로 완료되었습니다.");
+    }
+
+    // 프로필 삭제
+    @Operation(summary = "프로필 삭제", description = "선택한 프로필을 삭제합니다.")
+    @DeleteMapping("/profile")
+    public ApiResponse<String> deleteProfile(HttpServletRequest request){
+        String accessToken = jwtUtil.extractAccessToken(request);
+
+        authService.deleteProfile(accessToken);
+        return ApiResponse.onSuccess("프로필이 성공적으로 삭제되었습니다.");
     }
 }
