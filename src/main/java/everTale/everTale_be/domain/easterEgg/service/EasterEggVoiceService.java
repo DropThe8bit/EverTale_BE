@@ -5,6 +5,7 @@ import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEg
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.EasterEggVoiceStoriesResponseDto;
 import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
 import everTale.everTale_be.domain.easterEgg.repository.EasterEggVoiceRepository;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.service.ProfileService;
@@ -14,7 +15,6 @@ import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.SceneRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
-import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import everTale.everTale_be.global.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,8 @@ public class EasterEggVoiceService {
 
     @Transactional
     public void createEasterEggVoice(Long sceneId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
-        validateParent();
+        Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
         Scene scene = findScene(sceneId);
 
         String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios");
@@ -56,7 +57,8 @@ public class EasterEggVoiceService {
 
     @Transactional
     public void deleteEasterEggVoice(Long sceneId){
-        validateParent();
+        Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
 
         EasterEggVoice voice = easterEggVoiceRepository.findByScene_Id(sceneId)
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.EASTER_EGG_VOICE_NOT_FOUND));
@@ -68,6 +70,7 @@ public class EasterEggVoiceService {
 
     public EasterEggVoiceStoriesResponseDto getStoriesWithEasterEggVoice(Long profileId, Pageable pageable){
         Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
         profileService.validateParentProfileAccess(profile, profileId);
 
         Page<Story> withVoice = easterEggVoiceRepository.findStoriesWithEasterEggVoice(profileId, pageable);
@@ -77,6 +80,7 @@ public class EasterEggVoiceService {
 
     public EasterEggVoiceStoriesResponseDto getStoriesWithoutEasterEggVoice(Long profileId, Pageable pageable){
         Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
         profileService.validateParentProfileAccess(profile, profileId);
 
         Page<Story> withoutVoice = easterEggVoiceRepository.findStoriesWithoutEasterEggVoice(profileId, pageable);
@@ -106,12 +110,5 @@ public class EasterEggVoiceService {
     private Scene findScene(Long sceneId){
         return sceneRepository.findById(sceneId)
                 .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
-    }
-
-    private void validateParent() {
-        Profile profile = profileHelper.getAuthenticatedProfile();
-        if (profile.getProfileType() != ProfileType.PARENT) {
-            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
-        }
     }
 }

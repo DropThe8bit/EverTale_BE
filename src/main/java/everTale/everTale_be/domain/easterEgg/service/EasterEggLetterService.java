@@ -135,6 +135,7 @@ public class EasterEggLetterService {
 
     public EasterEggLetterStoriesResponseDto getStoriesWithEasterEggLetter(Long profileId, Pageable pageable){
         Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
         profileService.validateParentProfileAccess(profile, profileId);
 
         Page<Story> withLetter = easterEggLetterRepository.findStoriesWithEasterEggLetter(profileId, pageable);
@@ -144,6 +145,7 @@ public class EasterEggLetterService {
 
     public EasterEggLetterStoriesResponseDto getStoriesWithoutEasterEggLetter(Long profileId, Pageable pageable){
         Profile profile = profileHelper.getAuthenticatedProfile();
+        profileService.isParent(profile);
         profileService.validateParentProfileAccess(profile, profileId);
 
         Page<Story> withoutLetter = easterEggLetterRepository.findStoriesWithoutEasterEggLetter(profileId, pageable);
