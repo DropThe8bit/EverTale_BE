@@ -152,6 +152,12 @@ public class ProfileService {
         profileRepository.anonymizeProfile(profileId);
     }
 
+    public void isParent(Profile profile) {
+        if (profile.getProfileType() != ProfileType.PARENT) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
+    }
+
     public void validateChildProfileAccess(Profile profile, Long profileId) {
         if (!profile.getId().equals(profileId)) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
