@@ -4,6 +4,7 @@ import everTale.everTale_be.auth.jwt.JwtProvider;
 import everTale.everTale_be.auth.jwt.JwtUtil;
 import everTale.everTale_be.auth.service.TokenAuthService;
 import everTale.everTale_be.auth.util.UserHelper;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileRequestDto;
@@ -46,7 +47,7 @@ public class ProfileService {
         if (exists){
             throw new BadRequestHandler(ErrorStatus.ALREADY_EXISTS_PROFILE);
         }
-        profileRepository.save(requestDto.toEntity(rootUser, ProfileType.CHILD));
+        profileRepository.save(requestDto.toEntity(rootUser, ProfileType.CHILD, ProfileStatus.ACTIVE));
     }
 
     public void createParentProfile() {
@@ -62,6 +63,7 @@ public class ProfileService {
                 .phone(rootUser.getPhone())
                 .user(rootUser)
                 .profileType(ProfileType.PARENT)
+                .profileStatus(ProfileStatus.ACTIVE)
                 .build();
 
         profileRepository.save(parentProfile);
@@ -70,7 +72,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileListResponseDto getProfiles(){
         Long userId = userHelper.getRootUserId();
-        List<Profile> profiles = profileRepository.findAllByUserId(userId);
+        List<Profile> profiles = profileRepository.findAllByUserIdAndProfileStatusNot(userId, ProfileStatus.DELETED);
 
         return ProfileListResponseDto.from(profiles);
     }
@@ -127,43 +129,21 @@ public class ProfileService {
         rootUser.changePassword(passwordEncoder.encode(requestDto.getNewPassword()));
     }
 
-    public ProfileEnterResponseDto reissueWithProfile(String refreshToken, Long profileId) {
-        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
-
-        String storedRefreshToken = tokenAuthService.getRefreshToken(userId);
-        if (!storedRefreshToken.equals(refreshToken)) {
-            throw new UnAuthorizedHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
-        }
-
-        Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.NOT_FOUND_PROFILE));
-        String newAccessToken = jwtUtil.generateAccessTokenWithProfile(userId, profile.getId());
-        String newRefreshToken = jwtUtil.generateRefreshTokenWithProfile(userId, profile.getId());
-        tokenAuthService.saveRefreshToken(profileId, newRefreshToken);
-
-        return ProfileEnterResponseDto.from(profile, newAccessToken, newRefreshToken, jwtUtil);
-    }
-
-    // 프로필 삭제 (회원 탈퇴 X)
-    public void deleteProfile(String accessToken){
-        Long profileId = profileHelper.getAuthenticatedProfileId();
-
-        tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
-        profileRepository.anonymizeProfile(profileId);
-    }
-
+    @Transactional(readOnly = true)
     public void isParent(Profile profile) {
         if (profile.getProfileType() != ProfileType.PARENT) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
     }
 
+    @Transactional(readOnly = true)
     public void validateChildProfileAccess(Profile profile, Long profileId) {
         if (!profile.getId().equals(profileId)) {
             throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
         }
     }
 
+    @Transactional(readOnly = true)
     public void validateParentProfileAccess(Profile parent, Long profileId) {
         boolean isMyChild = profileRepository.existsByUserIdAndId(parent.getUser().getId(), profileId);
         if (!isMyChild) {

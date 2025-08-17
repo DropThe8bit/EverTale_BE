@@ -1,5 +1,6 @@
 package everTale.everTale_be.domain.profile.entity;
 
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileUpdateRequestDto;
 import everTale.everTale_be.domain.profile.dto.request.ParentProfileUpdateRequestDto;
@@ -49,6 +50,10 @@ public class Profile extends BaseTimeEntity {
     @Column(name = "profile_type", nullable = false)
     private ProfileType profileType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProfileStatus profileStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable = false, nullable = false)
     private User user;
@@ -66,6 +71,7 @@ public class Profile extends BaseTimeEntity {
                    String phone,
                    String email,
                    ProfileType profileType,
+                   ProfileStatus profileStatus,
                    Badge badge,
                    User user) {
         this.name = name;
@@ -74,6 +80,7 @@ public class Profile extends BaseTimeEntity {
         this.phone = phone;
         this.email = email;
         this.profileType = profileType;
+        this.profileStatus = profileStatus;
         this.user = user;
         this.badge = (badge != null) ? badge : Badge.fromSolvedCount(this.quizSolvedCount);
 
@@ -97,5 +104,9 @@ public class Profile extends BaseTimeEntity {
 
     public void refreshBadge() {
         this.badge = Badge.fromSolvedCount(this.quizSolvedCount);
+    }
+
+    public void deleteProfile(){
+        this.profileStatus = ProfileStatus.DELETED;
     }
 }

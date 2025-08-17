@@ -1,5 +1,6 @@
 package everTale.everTale_be.domain.profile.repository;
 
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,7 +19,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     boolean existsByUserIdAndId(Long userId, Long id);
 
     // 현재 로그인한 회원의 프로필들 가져오기
-    List<Profile> findAllByUserId(Long userId);
+    List<Profile> findAllByUserIdAndProfileStatusNot(Long userId, ProfileStatus status);
 
     @Modifying
     @Transactional
