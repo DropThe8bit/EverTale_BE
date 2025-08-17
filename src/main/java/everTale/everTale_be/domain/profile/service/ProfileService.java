@@ -19,7 +19,6 @@ import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
-import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -151,5 +150,18 @@ public class ProfileService {
 
         tokenAuthService.addToBlackListForAccessToken(accessToken, "WITHDRAW");
         profileRepository.anonymizeProfile(profileId);
+    }
+
+    public void validateChildProfileAccess(Profile profile, Long profileId) {
+        if (!profile.getId().equals(profileId)) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
+    }
+
+    public void validateParentProfileAccess(Profile parent, Long profileId) {
+        boolean isMyChild = profileRepository.existsByUserIdAndId(parent.getUser().getId(), profileId);
+        if (!isMyChild) {
+            throw new UnAuthorizedHandler(ErrorStatus.UNAUTHORIZED_PROFILE_ACCESS);
+        }
     }
 }
