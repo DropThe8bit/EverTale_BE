@@ -3,10 +3,10 @@ package everTale.everTale_be.domain.easterEgg.service;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRegisterRequestDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRequestDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.EasterEggVoiceStoriesResponseDto;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.YoloDetectionResponseDto;
 import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
+import everTale.everTale_be.domain.easterEgg.external.YoloApiClient;
 import everTale.everTale_be.domain.easterEgg.repository.EasterEggVoiceRepository;
-import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
-import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -35,33 +37,42 @@ public class EasterEggVoiceService {
     private final SceneRepository sceneRepository;
     private final EasterEggVoiceRepository easterEggVoiceRepository;
     private final ProfileService profileService;
+    private final YoloApiClient yoloApiClient;
+
+    @Transactional(readOnly = true)
+    public YoloDetectionResponseDto getObjectFromImages(Long storyId){
+        List<Scene> scenes = sceneRepository.findByStoryIdOrderByPageAsc(storyId);
+        List<String> sceneImages = scenes.stream()
+                .map(Scene::getImageUrl)
+                .toList();
+        return yoloApiClient.callFastApiToDetectObject(sceneImages);
+    }
 
     @Transactional
-    public void createEasterEggVoice(Long sceneId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
-        Profile profile = profileHelper.getAuthenticatedProfile();
-        profileService.isParent(profile);
-        Scene scene = findScene(sceneId);
+    public void createEasterEggVoice(Long storyId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
+        Scene scene = sceneRepository.findByStoryIdAndPage(storyId, requestDto.getIndex())
+                .orElseThrow(()-> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
 
         String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios");
-
         EasterEggVoice voice = EasterEggVoice.builder()
                 .scene(scene)
-                .xCoordinate(requestDto.getXCoordinate())
-                .yCoordinate(requestDto.getYCoordinate())
-                .width(requestDto.getWidth())
-                .height(requestDto.getHeight())
+                .xCoordinate(requestDto.getDetection().getXCoordinate())
+                .yCoordinate(requestDto.getDetection().getYCoordinate())
+                .width(requestDto.getDetection().getWidth())
+                .height(requestDto.getDetection().getHeight())
                 .voiceFile(voiceUrl)
                 .build();
         easterEggVoiceRepository.save(voice);
     }
 
     @Transactional
-    public void deleteEasterEggVoice(Long sceneId){
+    public void deleteEasterEggVoice(Long storyId){
         Profile profile = profileHelper.getAuthenticatedProfile();
         profileService.isParent(profile);
 
-        EasterEggVoice voice = easterEggVoiceRepository.findByScene_Id(sceneId)
+        EasterEggVoice voice = easterEggVoiceRepository.findFirstByScene_Story_Id(storyId)
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.EASTER_EGG_VOICE_NOT_FOUND));
+
         Scene scene = voice.getScene();
         scene.setEasterEggVoice(null);
         s3Manager.deleteFile(voice.getVoiceFile());
@@ -105,10 +116,5 @@ public class EasterEggVoiceService {
         float yBottom = voice.getYCoordinate() - voice.getHeight();
 
         return clickX >= xLeft && clickX <= xRight && clickY <= yTop && clickY >= yBottom;
-    }
-
-    private Scene findScene(Long sceneId){
-        return sceneRepository.findById(sceneId)
-                .orElseThrow(() -> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
     }
 }

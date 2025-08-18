@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.easterEgg.controller;
 
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRegisterRequestDto;
+import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.YoloDetectionResponseDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRequestDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.EasterEggVoiceStoriesResponseDto;
 import everTale.everTale_be.domain.easterEgg.service.EasterEggVoiceService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,24 +24,34 @@ public class EasterEggVoiceController {
 
     private final EasterEggVoiceService easterEggVoiceService;
 
+    @Operation(summary = "YOLO 객체 탐지", description = "이미지들 중 객체를 탐지하고 이미지 index와 좌표를 반환합니다.")
+    @GetMapping("/voices/{storyId}")
+    public ApiResponse<YoloDetectionResponseDto> getObjectFromImages(@Parameter(description = "스토리 ID") @PathVariable("storyId") Long storyId){
+        YoloDetectionResponseDto responseDto = easterEggVoiceService.getObjectFromImages(storyId);
+        return ApiResponse.onSuccess(responseDto);
+    }
+
     @Operation(summary = "이스터에그 음성 등록", description = "장면에 대한 이스터에그 음성을 업로드합니다.")
-    @PostMapping("/scenes/{sceneId}")
-    public ApiResponse<String> createEasterEggVoice(@Parameter(description = "장면 ID") @PathVariable("sceneId") Long sceneId,
+    @PostMapping(
+            value = "/voices/{storyId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<String> createEasterEggVoice(@Parameter(description = "스토리 ID") @PathVariable("storyId") Long storyId,
                                                     @Parameter(description = "업로드할 음성 파일 (.wav)", required = true) @RequestPart("voiceFile") MultipartFile voiceFile,
                                                     @RequestPart EasterEggVoiceRegisterRequestDto requestDto){
-        easterEggVoiceService.createEasterEggVoice(sceneId, voiceFile,requestDto);
+        easterEggVoiceService.createEasterEggVoice(storyId, voiceFile, requestDto);
         return ApiResponse.onSuccess("이스터에그 음성이 성공적으로 등록되었습니다.");
     }
 
     @Operation(summary = "이스터에그 음성 삭제", description = "해당 장면의 이스터에그 음성을 삭제합니다.")
-    @DeleteMapping("/scenes/{sceneId}")
-    public ApiResponse<String> deleteEasterEggVoice(@Parameter(description = "장면 ID") @PathVariable("sceneId") Long sceneId){
-        easterEggVoiceService.deleteEasterEggVoice(sceneId);
+    @DeleteMapping("/voices/{storyId}")
+    public ApiResponse<String> deleteEasterEggVoice(@Parameter(description = "장면 ID") @PathVariable("storyId") Long storyId){
+        easterEggVoiceService.deleteEasterEggVoice(storyId);
         return ApiResponse.onSuccess("이스터에그 음성이 성공적으로 삭제되었습니다.");
     }
 
     @Operation(summary = "이스터에그 음성 재생 요청", description = "현재 위치와 크기 정보를 기반으로 해당 장면의 이스터에그 음성 재생 URL을 반환합니다.")
-    @PostMapping("/scenes/{sceneId}/play")
+    @PostMapping("/voices/{sceneId}/play")
     public ApiResponse<String> getEasterEggVoiceUrl(@Parameter(description = "장면 ID") @PathVariable Long sceneId,
                                                     @RequestBody EasterEggVoiceRequestDto requestDto) {
         String voiceUrl = easterEggVoiceService.getVoiceUrl(sceneId, requestDto);
