@@ -1,6 +1,5 @@
 package everTale.everTale_be.auth.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import everTale.everTale_be.auth.jwt.JwtUtil;
 import everTale.everTale_be.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;

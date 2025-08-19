@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface EasterEggVoiceRepository extends JpaRepository<EasterEggVoice, Long> {
 
+    Optional<EasterEggVoice> findFirstByScene_Story_Id(Long storyId);
+
     Optional<EasterEggVoice> findByScene_Id(Long sceneId);
 
     @Query(
