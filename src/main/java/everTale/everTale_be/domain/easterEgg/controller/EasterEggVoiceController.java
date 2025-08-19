@@ -37,7 +37,7 @@ public class EasterEggVoiceController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<String> createEasterEggVoice(@Parameter(description = "스토리 ID") @PathVariable("storyId") Long storyId,
-                                                    @Parameter(description = "업로드할 음성 파일 (.wav)", required = true) @RequestPart("voiceFile") MultipartFile voiceFile,
+                                                    @Parameter(description = "업로드할 음성 파일 (.wav, .mp3)", required = true) @RequestPart("voiceFile") MultipartFile voiceFile,
                                                     @RequestPart EasterEggVoiceRegisterRequestDto requestDto){
         easterEggVoiceService.createEasterEggVoice(storyId, voiceFile, requestDto);
         return ApiResponse.onSuccess("이스터에그 음성이 성공적으로 등록되었습니다.");

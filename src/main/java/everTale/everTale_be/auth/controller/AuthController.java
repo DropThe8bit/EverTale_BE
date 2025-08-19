@@ -22,7 +22,6 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
     private final AuthService authService;
-    private final ProfileService profileService;
 
     // 일반 회원가입
     @Operation(summary = "일반 회원가입", description = "이메일, 비밀번호, 이름, 전화번호, 기관명으로 회원가입을 진행합니다.")

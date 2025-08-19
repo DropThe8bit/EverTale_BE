@@ -33,7 +33,7 @@ public class VoiceController {
 
     @Operation(summary = "음성 등록", description = "사용자의 음성 파일을 등록합니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> registerVoice(@Parameter(description = "업로드할 음성 파일 (.wav)", required = true)
+    public ApiResponse<String> registerVoice(@Parameter(description = "업로드할 음성 파일 (.wav, mp3)", required = true)
                                              @RequestPart("voiceFile") MultipartFile voiceFile) {
         voiceService.registerUserVoice(voiceFile);
         return ApiResponse.onSuccess("목소리가 성공적으로 등록되었습니다.");
