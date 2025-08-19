@@ -69,8 +69,8 @@ public class AuthController {
         return ApiResponse.onSuccess("회원 탈퇴가 성공적으로 완료되었습니다.");
     }
 
-    @PostMapping("/profile/reissue")
     @Operation(summary = "프로필 기반 AccessToken 재발급", description = "만료된 access token을 refresh token으로 재발급합니다.")
+    @PostMapping("/profiles/reissue")
     public ApiResponse<ProfileEnterResponseDto> reissueProfileAccessToken(@Valid @RequestBody ProfileReissueRequestDto requestDto) {
         ProfileEnterResponseDto responseDto = authService.reissueWithProfile(requestDto.getRefreshToken());
         return ApiResponse.onSuccess(responseDto);
@@ -78,7 +78,7 @@ public class AuthController {
 
     // 프로필 로그아웃
     @Operation(summary = "프로필 로그아웃", description = "선택한 프로필에서 로그아웃합니다.")
-    @DeleteMapping("/profile/logout")
+    @PostMapping("/profiles/logout")
     public ApiResponse<String> logoutProfile(HttpServletRequest request){
         String accessToken = jwtUtil.extractAccessToken(request);
 
@@ -88,7 +88,7 @@ public class AuthController {
 
     // 프로필 삭제
     @Operation(summary = "프로필 삭제", description = "선택한 프로필을 삭제합니다.")
-    @DeleteMapping("/profile")
+    @DeleteMapping("/profiles")
     public ApiResponse<String> deleteProfile(HttpServletRequest request){
         String accessToken = jwtUtil.extractAccessToken(request);
 
