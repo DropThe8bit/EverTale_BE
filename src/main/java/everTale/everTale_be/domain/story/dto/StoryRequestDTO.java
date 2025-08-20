@@ -3,6 +3,7 @@ package everTale.everTale_be.domain.story.dto;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -82,6 +83,16 @@ public class StoryRequestDTO {
     public static class StoryUpdateRequestDTO {
         @Schema(description = "수정된 줄거리 내용", example = "주인공은 용기를 내어 드래곤에게 다가갔다.")
         private String updatedContent;
+    }
+    @Data
+    @AllArgsConstructor
+    public static class SketchImageRequestDTO {
+
+        @Schema(description = "장면 프롬프트", example = "A little girl holding a balloon")
+        private String prompt;
+
+        @Schema(type = "string", format = "binary", description = "스케치 이미지 파일")
+        private MultipartFile sketch;
     }
 
     @Getter

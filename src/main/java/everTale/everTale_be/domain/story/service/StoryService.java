@@ -295,14 +295,11 @@ public class StoryService {
         story.addScene(newScene);
         return nextContent;
     }
-    // 줄거리 및 아이그림 기반 그림 생성
+    // 장면 프롬프트 및 아이그림 기반 그림 생성
     @Transactional
-    public String generateImageFromSketch(Long storyId, int pageNum, MultipartFile sketch) {
+    public String generateImageFromSketch(Long storyId, int pageNum, StoryRequestDTO.SketchImageRequestDTO request) {
         Scene scene = findMyScene(storyId, pageNum);
-
-        String prompt = scene.getContent();
-        String imageUrl = storyApiClient.callFastApiForImageFromSketch(sketch, prompt, scene.getStory().getGenre().name());
-
+        String imageUrl = storyApiClient.callFastApiForImageFromSketch(request.getSketch(), request.getPrompt(), scene.getStory().getGenre().name());
         scene.updateImageUrl(imageUrl);
         return imageUrl;
     }

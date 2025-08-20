@@ -8,12 +8,12 @@ import everTale.everTale_be.domain.story.service.StoryService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -128,7 +128,7 @@ public class StoryController {
         String nextStory = storyService.generateNextSceneWithAnswer(storyId, pageNum, request.getAnswer());
         return ApiResponse.onSuccess(nextStory);
     }
-    @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 줄거리를 기반으로 이미지를 생성합니다.")
+    @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 장면 프롬프트를 기반으로 이미지를 생성합니다.")
     @PostMapping(
             value = "/{storyId}/scenes/{pageNum}/controlnet",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -136,10 +136,9 @@ public class StoryController {
     public ApiResponse<String> createImageFromSketch(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
             @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
-            @Parameter(description = "스케치 이미지 파일", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
-            @RequestPart("sketch") MultipartFile sketch
-    ) {
-        String image = storyService.generateImageFromSketch(storyId, pageNum, sketch);
+            @Validated @ModelAttribute StoryRequestDTO.SketchImageRequestDTO request
+            ) {
+        String image = storyService.generateImageFromSketch(storyId, pageNum, request);
         return ApiResponse.onSuccess(image);
     }
 
