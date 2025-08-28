@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.story.external;
 
-import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
+import everTale.everTale_be.domain.story.dto.request.StoryRequestDTO;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.utils.MultipartInputStreamFileResource;

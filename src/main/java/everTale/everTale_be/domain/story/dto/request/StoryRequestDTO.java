@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.story.dto;
+package everTale.everTale_be.domain.story.dto.request;
 
 import everTale.everTale_be.domain.story.entity.enums.Genre;
 import io.swagger.v3.oas.annotations.media.Schema;

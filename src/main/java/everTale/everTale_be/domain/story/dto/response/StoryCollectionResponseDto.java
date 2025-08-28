@@ -1,5 +1,6 @@
-package everTale.everTale_be.domain.story.dto;
+package everTale.everTale_be.domain.story.dto.response;
 
+import everTale.everTale_be.domain.story.dto.StorySummary;
 import everTale.everTale_be.domain.story.entity.Story;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
