@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.easterEgg.repository;
 
 import everTale.everTale_be.domain.easterEgg.entity.EasterEggVoice;
+import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,8 @@ public interface EasterEggVoiceRepository extends JpaRepository<EasterEggVoice, 
     Optional<EasterEggVoice> findFirstByScene_Story_Id(Long storyId);
 
     Optional<EasterEggVoice> findByScene_Id(Long sceneId);
+
+    boolean existsByScene(Scene scene);
 
     @Query(
             value = """

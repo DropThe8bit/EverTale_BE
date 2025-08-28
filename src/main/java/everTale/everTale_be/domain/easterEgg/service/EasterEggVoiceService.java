@@ -16,6 +16,7 @@ import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
 import everTale.everTale_be.domain.story.repository.SceneRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
+import everTale.everTale_be.global.apiPayload.exception.handler.BadRequestHandler;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import everTale.everTale_be.global.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,9 @@ public class EasterEggVoiceService {
     public void createEasterEggVoice(Long storyId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
         Scene scene = sceneRepository.findByStoryIdAndPage(storyId, requestDto.getIndex())
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        if(easterEggVoiceRepository.existsByScene(scene)){
+            throw new BadRequestHandler(ErrorStatus.EASTER_EGG_VOICE_ALREADY_EXISTS);
+        }
         Story story = scene.getStory();
         Profile profile = story.getProfile();
 
