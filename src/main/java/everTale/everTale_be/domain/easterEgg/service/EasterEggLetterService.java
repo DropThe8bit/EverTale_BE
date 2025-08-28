@@ -54,7 +54,7 @@ public class EasterEggLetterService {
                 .availableAt(request.getAvailableAt())
                 .build();
         story.addEasterEggLetter(letter);
-        alarmService.createAlarm(AlarmType.EASTEREGG_VOICE, profile, story);
+        alarmService.createAlarm(AlarmType.EASTEREGG_LETTER, profile, story);
     }
 
     // 이스터에그 편지 조회
