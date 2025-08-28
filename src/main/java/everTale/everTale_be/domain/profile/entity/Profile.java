@@ -1,5 +1,6 @@
 package everTale.everTale_be.domain.profile.entity;
 
+import everTale.everTale_be.domain.alarm.entity.Alarm;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileStatus;
 import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.dto.request.ChildProfileUpdateRequestDto;
@@ -61,8 +62,8 @@ public class Profile extends BaseTimeEntity {
     @OneToMany(mappedBy = "profile")
     private List<Story> stories = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "alarm", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Alram> alrams = new ArrayList<>();
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alarm> alarms = new ArrayList<>();
 
     @Builder
     public Profile(String name,

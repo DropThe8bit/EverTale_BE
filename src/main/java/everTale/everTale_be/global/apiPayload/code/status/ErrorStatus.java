@@ -72,6 +72,9 @@ public enum ErrorStatus implements BaseErrorCode {
     ENABLE_TO_GENERATE_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI506", "음성 재생 중 오류가 발생했습니다."),
     ENABLE_TO_DELETE_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI507", "목소리를 삭제하는 중 오류가 발생했습니다."),
     NOT_FOUND_VOICE(HttpStatus.NOT_FOUND, "VOICE404", "해당 Voice를 찾을 수 없습니다."),
+
+    // Alarm 관련 에러
+    NOT_FOUNT_ALARM(HttpStatus.NOT_FOUND, "ALARM404", "해당 알림을 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

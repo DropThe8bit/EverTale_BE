@@ -1,5 +1,7 @@
 package everTale.everTale_be.domain.easterEgg.service;
 
+import everTale.everTale_be.domain.alarm.entity.Enum.AlarmType;
+import everTale.everTale_be.domain.alarm.service.AlarmService;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRegisterRequestDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.request.EasterEggVoiceRequestDto;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggVoice.response.EasterEggVoiceStoriesResponseDto;
@@ -36,6 +38,7 @@ public class EasterEggVoiceService {
     private final S3Manager s3Manager;
     private final SceneRepository sceneRepository;
     private final EasterEggVoiceRepository easterEggVoiceRepository;
+    private final AlarmService alarmService;
     private final ProfileService profileService;
     private final YoloApiClient yoloApiClient;
 
@@ -52,6 +55,8 @@ public class EasterEggVoiceService {
     public void createEasterEggVoice(Long storyId, MultipartFile voiceFile, EasterEggVoiceRegisterRequestDto requestDto){
         Scene scene = sceneRepository.findByStoryIdAndPage(storyId, requestDto.getIndex())
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND));
+        Story story = scene.getStory();
+        Profile profile = story.getProfile();
 
         String voiceUrl = s3Manager.uploadFile(voiceFile, "eastereggs/audios");
         EasterEggVoice voice = EasterEggVoice.builder()
@@ -63,6 +68,7 @@ public class EasterEggVoiceService {
                 .voiceFile(voiceUrl)
                 .build();
         easterEggVoiceRepository.save(voice);
+        alarmService.createAlarm(AlarmType.EASTEREGG_VOICE, profile, story);
     }
 
     @Transactional

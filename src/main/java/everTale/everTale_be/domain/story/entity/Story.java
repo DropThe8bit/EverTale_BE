@@ -1,6 +1,7 @@
 package everTale.everTale_be.domain.story.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import everTale.everTale_be.domain.alarm.entity.Alarm;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.easterEgg.entity.EasterEggLetter;
 import everTale.everTale_be.domain.story.entity.enums.Genre;
@@ -46,6 +47,10 @@ public class Story extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", updatable = false, nullable = false)
     private Profile profile;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alarm> alarms = new ArrayList<>();
 
     public void setCharacter(StoryCharacter character) {
         this.character = character;
