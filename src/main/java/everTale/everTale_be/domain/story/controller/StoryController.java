@@ -1,9 +1,9 @@
 package everTale.everTale_be.domain.story.controller;
 
-import everTale.everTale_be.domain.story.dto.SceneResponseDTO;
-import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
-import everTale.everTale_be.domain.story.dto.StoryRequestDTO;
-import everTale.everTale_be.domain.story.dto.StoryResponseDTO;
+import everTale.everTale_be.domain.story.dto.response.SceneResponseDTO;
+import everTale.everTale_be.domain.story.dto.response.StoryCollectionResponseDto;
+import everTale.everTale_be.domain.story.dto.request.StoryRequestDTO;
+import everTale.everTale_be.domain.story.dto.response.StoryResponseDTO;
 import everTale.everTale_be.domain.story.service.StoryService;
 import everTale.everTale_be.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

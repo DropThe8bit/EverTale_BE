@@ -1,6 +1,6 @@
 package everTale.everTale_be.domain.easterEgg.dto.easterEggLetter;
 
-import everTale.everTale_be.domain.story.dto.StoryCollectionResponseDto;
+import everTale.everTale_be.domain.story.dto.response.StoryCollectionResponseDto;
 import everTale.everTale_be.domain.story.entity.Story;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

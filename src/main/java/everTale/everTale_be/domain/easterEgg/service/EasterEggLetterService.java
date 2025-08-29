@@ -1,5 +1,7 @@
 package everTale.everTale_be.domain.easterEgg.service;
 
+import everTale.everTale_be.domain.alarm.entity.Enum.AlarmType;
+import everTale.everTale_be.domain.alarm.service.AlarmService;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterRequestDTO;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterResponseDTO;
 import everTale.everTale_be.domain.easterEgg.dto.easterEggLetter.EasterEggLetterStoriesResponseDto;
@@ -32,11 +34,13 @@ public class EasterEggLetterService {
     private final ProfileHelper profileHelper;
     private final EasterEggLetterRepository easterEggLetterRepository;
     private final ProfileService profileService;
+    private final AlarmService alarmService;
 
     // 이스터에그 편지 생성
     @Transactional
     public void saveEasterEggLetter(Long storyId, EasterEggLetterRequestDTO.EasterEggLetterCreateRequestDTO request) {
         Story story = getStoryForParent(storyId);
+        Profile profile = story.getProfile();
 
         // 이미 편지가 존재하는 경우 예외
         if (story.getEasterEggLetter() != null) {
@@ -50,6 +54,7 @@ public class EasterEggLetterService {
                 .availableAt(request.getAvailableAt())
                 .build();
         story.addEasterEggLetter(letter);
+        alarmService.createAlarm(AlarmType.EASTEREGG_LETTER, profile, story);
     }
 
     // 이스터에그 편지 조회

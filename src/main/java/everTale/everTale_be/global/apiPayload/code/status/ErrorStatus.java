@@ -60,6 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
     EASTER_EGG_LETTER_NOT_YET_AVAILABLE(HttpStatus.BAD_REQUEST,"EASTER_EGG401","이스터에그 편지를 열람할 수 없습니다."),
     EASTER_EGG_LETTER_ALREADY_EXISTS(HttpStatus.CONFLICT,"EASTER_EGG402","이스터에그 편지가 이미 존재합니다."),
     EASTER_EGG_VOICE_NOT_FOUND(HttpStatus.NOT_FOUND,"EASTER_EGG4002","이스터에그 음성을 찾을 수 없습니다."),
+    EASTER_EGG_VOICE_ALREADY_EXISTS(HttpStatus.CONFLICT,"EASTER_EGG4022","이스터에그 음성이 이미 존재합니다."),
     OBJECT_NOT_DETECTED(HttpStatus.NOT_FOUND, "EASTER_EGG4003", "객체를 탐지할 수 없습니다."),
 
     //Quiz 관련
@@ -72,6 +73,9 @@ public enum ErrorStatus implements BaseErrorCode {
     ENABLE_TO_GENERATE_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI506", "음성 재생 중 오류가 발생했습니다."),
     ENABLE_TO_DELETE_VOICE(HttpStatus.BAD_REQUEST, "FASTAPI507", "목소리를 삭제하는 중 오류가 발생했습니다."),
     NOT_FOUND_VOICE(HttpStatus.NOT_FOUND, "VOICE404", "해당 Voice를 찾을 수 없습니다."),
+
+    // Alarm 관련 에러
+    NOT_FOUNT_ALARM(HttpStatus.NOT_FOUND, "ALARM404", "해당 알림을 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

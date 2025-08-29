@@ -1,4 +1,4 @@
-package everTale.everTale_be.domain.story.dto;
+package everTale.everTale_be.domain.story.dto.response;
 
 import everTale.everTale_be.domain.story.entity.Scene;
 import everTale.everTale_be.domain.story.entity.Story;
