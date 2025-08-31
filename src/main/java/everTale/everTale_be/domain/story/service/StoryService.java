@@ -196,9 +196,7 @@ public class StoryService {
         }
 
         // 2-1. personalities 문자열 리스트로 변환
-        List<String> personalities = storyCharacter.getCharacterPersonalities().stream()
-                .map(cp -> cp.getPersonality().getPersonality())
-                .collect(Collectors.toList());
+        List<String> personalities = extractPersonalities(storyCharacter);
 
         // 3. FastAPI 요청용 JSON 만들기
         StoryRequestDTO.FastApiInitStoryRequestDTO requestDto = StoryRequestDTO.FastApiInitStoryRequestDTO.builder()
@@ -216,14 +214,8 @@ public class StoryService {
         // 5. 장르 저장
         story.updateGenre(request.getGenre());
 
-
         // 6. 첫 장면 저장 (page=1)
-        Scene scene = Scene.builder()
-                .page(1)
-                .content(initStory)
-                .build();
-
-        story.addScene(scene);
+        saveNewScene(story,1,initStory);
 
         // 7. 줄거리 반환
         return initStory;
@@ -236,38 +228,19 @@ public class StoryService {
     public String generateNextScene(Long storyId, int pageNum) {
         // 1. 이전 줄거리 조회
         Scene prevScene = findMyScene(storyId, pageNum-1);
-        String previousContent = prevScene.getContent();
 
         // 2. Story & Character 조회
         Story story = prevScene.getStory();
         StoryCharacter character = story.getCharacter();
 
-        // 3. Personality 추출
-        List<String> personalities = character.getCharacterPersonalities().stream()
-                .map(cp -> cp.getPersonality().getPersonality())
-                .collect(Collectors.toList());
+        // 3. DTO 조립 및 FastAPI 호출
+        var dto = buildNextStoryDto(prevScene,story,character,pageNum);
 
-        // 4. DTO 조립 및 FastAPI 호출
-        StoryRequestDTO.NextStoryGenerateRequestDTO dto =
-                StoryRequestDTO.NextStoryGenerateRequestDTO.builder()
-                        .previous(previousContent)
-                        .pageNum(pageNum)
-                        .genre(story.getGenre().name())
-                        .name(character.getName())
-                        .age(character.getAge())
-                        .gender(character.getGender().name())
-                        .personalities(personalities)
-                        .build();
-
-        // 5. FastAPI 호출 → 다음 줄거리 생성
+        // 4. FastAPI 호출 → 다음 줄거리 생성
         String nextContent = storyApiClient.callFastApiForNextStory(dto);
 
-        // 6. 새 Scene 저장
-        Scene newScene = Scene.builder()
-                .page(pageNum)
-                .content(nextContent)
-                .build();
-        story.addScene(newScene);
+        // 5. 새 Scene 저장
+        saveNewScene(story,pageNum,nextContent);
 
         return nextContent;
     }
@@ -276,25 +249,27 @@ public class StoryService {
     @Transactional(readOnly = true)
     public String generateQuestionFromPreviousScene(Long storyId, int pageNum) {
         Scene prevScene = findMyScene(storyId, pageNum - 1);
-        return storyApiClient.callFastApiForQuestion(prevScene.getContent());
+        Story story = prevScene.getStory();
+        StoryCharacter character = story.getCharacter();
+
+        var dto = buildNextStoryDto(prevScene, story, character, pageNum);
+        return storyApiClient.callFastApiForQuestion(dto);
     }
 
     // 아이의 대답 기반 다음 줄거리 생성
     @Transactional
-    public String generateNextSceneWithAnswer(Long storyId, int pageNum, String answer) {
+    public String generateNextSceneWithAnswer(Long storyId, int pageNum, StoryRequestDTO.StoryAnswerRequestDTO request) {
         Scene prevScene = findMyScene(storyId, pageNum - 1);
-
-        String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(prevScene.getContent(), answer);
-
         Story story = prevScene.getStory();
+        StoryCharacter character = story.getCharacter();
 
-        Scene newScene = Scene.builder()
-                .page(pageNum)
-                .content(nextContent)
-                .build();
-        story.addScene(newScene);
+        var dto = buildNextStoryDto(prevScene, story, character, pageNum);
+        String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(dto, request.getQuestion(), request.getAnswer());
+        saveNewScene(story, pageNum, nextContent);
+
         return nextContent;
     }
+
     // 장면 프롬프트 및 아이그림 기반 그림 생성
     @Transactional
     public String generateImageFromSketch(Long storyId, int pageNum, StoryRequestDTO.SketchImageRequestDTO request) {
@@ -306,10 +281,10 @@ public class StoryService {
 
     // 줄거리 기반 그림 생성
     @Transactional
-    public String generateImageFromPrompt(Long storyId, int pageNum) {
+    public String generateImageFromPrompt(Long storyId, int pageNum, StoryRequestDTO.ImagePromptRequestDTO request) {
         Scene scene = findMyScene(storyId, pageNum);
 
-        String prompt = scene.getContent();
+        String prompt = request.getPrompt();
         String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, scene.getStory().getGenre().name());
 
         scene.updateImageUrl(imageUrl);
@@ -357,4 +332,35 @@ public class StoryService {
 
         return scene.getContent();
     }
+
+    private List<String> extractPersonalities(StoryCharacter character) {
+        return character.getCharacterPersonalities().stream()
+                .map(cp -> cp.getPersonality().getPersonality())
+                .collect(Collectors.toList());
+    }
+
+    private StoryRequestDTO.NextStoryGenerateRequestDTO buildNextStoryDto(
+            Scene prevScene, Story story, StoryCharacter character, int pageNum
+    ) {
+        return StoryRequestDTO.NextStoryGenerateRequestDTO.builder()
+                .previous(prevScene.getContent())
+                .pageNum(pageNum)
+                .genre(story.getGenre().name())
+                .name(character.getName())
+                .age(character.getAge())
+                .gender(character.getGender().name())
+                .personalities(extractPersonalities(character))
+                .build();
+    }
+
+    private void saveNewScene(Story story, int pageNum, String content) {
+        Scene newScene = Scene.builder()
+                .page(pageNum)
+                .content(content)
+                .build();
+        story.addScene(newScene);
+    }
+
+
+
 }
