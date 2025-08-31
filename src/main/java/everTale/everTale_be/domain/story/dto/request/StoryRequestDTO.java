@@ -73,6 +73,9 @@ public class StoryRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StoryAnswerRequestDTO {
+        @Schema(description = "받은질문", example = "토토로는 비밀을 풀기위해 어떤 장비를 사용했나요?")
+        private String question;
+
         @Schema(description = "아이답변", example = "비밀을 풀기 위해 별을 모으는 지팡이를 사용했어요.")
         private String answer;
     }
@@ -93,6 +96,16 @@ public class StoryRequestDTO {
 
         @Schema(type = "string", format = "binary", description = "스케치 이미지 파일")
         private MultipartFile sketch;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ImagePromptRequestDTO{
+
+        @Schema(description = "장면 프롬프트", example = "A little girl holding a balloon")
+        private String prompt;
+
     }
 
     @Getter

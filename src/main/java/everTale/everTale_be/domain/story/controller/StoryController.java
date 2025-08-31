@@ -125,7 +125,7 @@ public class StoryController {
             @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
             @RequestBody StoryRequestDTO.StoryAnswerRequestDTO request
     ) {
-        String nextStory = storyService.generateNextSceneWithAnswer(storyId, pageNum, request.getAnswer());
+        String nextStory = storyService.generateNextSceneWithAnswer(storyId, pageNum, request);
         return ApiResponse.onSuccess(nextStory);
     }
     @Operation(summary = "스케치 기반 이미지 생성 API", description = "아이의 스케치 이미지와 장면 프롬프트를 기반으로 이미지를 생성합니다.")
@@ -146,9 +146,10 @@ public class StoryController {
     @PostMapping( "/{storyId}/scenes/{pageNum}/dalle")
     public ApiResponse<String> createImageFromPrompt(
             @Parameter(description = "스토리 ID") @PathVariable Long storyId,
-            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum
+            @Parameter(description = "페이지 번호(1~8)") @PathVariable int pageNum,
+            @RequestBody StoryRequestDTO.ImagePromptRequestDTO request
     ) {
-        String image = storyService.generateImageFromPrompt(storyId, pageNum);
+        String image = storyService.generateImageFromPrompt(storyId, pageNum, request);
         return ApiResponse.onSuccess(image);
     }
 

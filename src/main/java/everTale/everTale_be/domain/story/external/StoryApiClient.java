@@ -74,11 +74,10 @@ public class StoryApiClient {
     }
 
     // 질문 생성
-    public String callFastApiForQuestion(String previousContent) {
-        Map<String, String> request = Map.of("previous", previousContent);
+    public String callFastApiForQuestion(StoryRequestDTO.NextStoryGenerateRequestDTO requestDto) {
         ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
                 fastApiBaseUrl+"/ai/question",
-                request,
+                requestDto,
                 FastApiTextResponseDto.class
         );
 
@@ -90,10 +89,26 @@ public class StoryApiClient {
     }
 
     // 아이 답변 반영한 다음 줄거리 생성
-    public String callFastApiForNextStoryWithAnswer(String previousContent, String answer) {
-        Map<String, String> request = Map.of("previous", previousContent, "answer", answer);
+    public String callFastApiForNextStoryWithAnswer(
+            StoryRequestDTO.NextStoryGenerateRequestDTO requestDto,
+            String question,
+            String answer
+    ) {
+        // 요청 바디 구성
+        Map<String, Object> request = new HashMap<>();
+        request.put("question", question);
+        request.put("answer", answer);
+        request.put("previous", requestDto.getPrevious());
+        request.put("pageNum", requestDto.getPageNum());
+        request.put("genre", requestDto.getGenre());
+        request.put("name", requestDto.getName());
+        request.put("age", requestDto.getAge());
+        request.put("gender", requestDto.getGender());
+        request.put("personalities", requestDto.getPersonalities());
+
+        // FastAPI 호출
         ResponseEntity<FastApiTextResponseDto> response = restTemplate.postForEntity(
-                fastApiBaseUrl+"/ai/next-from-answer",
+                fastApiBaseUrl + "/ai/next-from-answer",
                 request,
                 FastApiTextResponseDto.class
         );
@@ -104,6 +119,7 @@ public class StoryApiClient {
             throw new BadRequestHandler(ErrorStatus.ENABLE_TO_GENERATE_STORY);
         }
     }
+
 
     // 스케치 이미지 + 프롬프트로 초기 캐릭터 이미지 생성 요청
     public String callFastApiForInitCharacterImageFromSketch(
