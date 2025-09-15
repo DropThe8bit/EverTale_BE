@@ -7,6 +7,7 @@ import everTale.everTale_be.domain.alarm.repository.AlarmRepository;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.domain.story.entity.Story;
+import everTale.everTale_be.domain.story.repository.StoryRepository;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.UnAuthorizedHandler;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
+    private final StoryRepository storyRepository;
     private final ProfileHelper profileHelper;
 
     @Transactional

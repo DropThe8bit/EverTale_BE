@@ -17,6 +17,9 @@ public class AlarmListResponseDto {
     @Schema(description = "알림 요약 리스트")
     private List<AlarmSummary> alarmSummaries;
 
+    @Schema(description = "읽지 않은 알림 개수", example = "3")
+    private long unreadCount;
+
     @Schema(description = "현재 페이지 번호 (0부터 시작)", example = "0")
     private int currentPage;
 
@@ -27,8 +30,13 @@ public class AlarmListResponseDto {
     private long totalCount;
 
     public static AlarmListResponseDto from(Page<Alarm> alarms){
+        long unreadCount = alarms.stream()
+                .filter(alarm -> !alarm.isRead())
+                .count();
+
         return AlarmListResponseDto.builder()
                 .alarmSummaries(alarms.stream().map(AlarmSummary::from).toList())
+                .unreadCount(unreadCount)
                 .currentPage(alarms.getNumber())
                 .totalPage(alarms.getTotalPages())
                 .totalCount(alarms.getTotalElements())
