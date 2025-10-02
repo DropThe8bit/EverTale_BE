@@ -6,8 +6,8 @@ import lombok.Getter;
 public enum Genre {
     ADVENTURE("모험"),
     FRIENDSHIP("우정"),
-    LESSON("교훈"),
-    LOVE("사랑");
+    MORAL("교훈도덕"),
+    FAMILY("사랑우정");
 
     private final String korean;
 
