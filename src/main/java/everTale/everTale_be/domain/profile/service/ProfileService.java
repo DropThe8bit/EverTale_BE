@@ -77,7 +77,15 @@ public class ProfileService {
         return ProfileListResponseDto.from(profiles);
     }
 
-    // 프로필 상세정보 조회
+
+    @Transactional(readOnly = true)
+    public ProfileListResponseDto getChildProfiles(){
+        Long userId = userHelper.getRootUserId();
+        List<Profile> profiles = profileRepository.findAllByUserIdAndProfileStatusNotAndProfileType(userId, ProfileStatus.DELETED, ProfileType.CHILD);
+
+        return ProfileListResponseDto.from(profiles);
+    }
+
     @Transactional(readOnly = true)
     public ProfileInfoResponseDto getProfileInfo(){
         Profile profile = profileHelper.getAuthenticatedProfile();

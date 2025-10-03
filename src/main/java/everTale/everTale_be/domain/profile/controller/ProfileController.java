@@ -42,9 +42,17 @@ public class ProfileController {
 
     // 프로필 리스트
     @Operation(summary = "프로필 리스트 조회", description = "사용자의 프로필 목록을 조회합니다.")
-    @GetMapping
+    @GetMapping("/all")
     public ApiResponse<ProfileListResponseDto> getProfiles(){
         ProfileListResponseDto responseDto = profileService.getProfiles();
+        return ApiResponse.onSuccess(responseDto);
+    }
+
+    // 자녀 프로필 리스트
+    @Operation(summary = "자녀 프로필 리스트 조회", description = "사용자의 자녀 프로필 목록을 조회합니다.")
+    @GetMapping("/child")
+    public ApiResponse<ProfileListResponseDto> getChildProfiles(){
+        ProfileListResponseDto responseDto = profileService.getChildProfiles();
         return ApiResponse.onSuccess(responseDto);
     }
 
