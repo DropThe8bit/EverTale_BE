@@ -167,9 +167,10 @@ public class StoryService {
 
         // Personality 리스트 저장
         for (String pDesc : request.getPersonalities()) {
+            String normalized = pDesc.trim();
             Personality personality = personalityRepository
-                    .findByPersonality(pDesc)
-                    .orElseGet(() -> personalityRepository.save(Personality.from(pDesc)));
+                    .findByPersonality(normalized)
+                    .orElseGet(() -> personalityRepository.save(Personality.from(normalized)));
 
             character.addCharacterPersonality(personality);
         }
@@ -240,8 +241,11 @@ public class StoryService {
         String nextContent = storyApiClient.callFastApiForNextStory(dto);
 
         // 5. 새 Scene 저장
-        saveNewScene(story,pageNum,nextContent);
-
+        sceneRepository.findByStoryIdAndPage(story.getId(), pageNum)
+                .ifPresentOrElse(
+                        scene -> scene.updateContent(nextContent),
+                        () -> saveNewScene(story, pageNum, nextContent)
+                );
         return nextContent;
     }
 
@@ -265,8 +269,12 @@ public class StoryService {
 
         var dto = buildNextStoryDto(prevScene, story, character, pageNum);
         String nextContent = storyApiClient.callFastApiForNextStoryWithAnswer(dto, request.getQuestion(), request.getAnswer());
-        saveNewScene(story, pageNum, nextContent);
 
+        sceneRepository.findByStoryIdAndPage(story.getId(), pageNum)
+                .ifPresentOrElse(
+                        scene -> scene.updateContent(nextContent),
+                        () -> saveNewScene(story, pageNum, nextContent)
+                );
         return nextContent;
     }
 
