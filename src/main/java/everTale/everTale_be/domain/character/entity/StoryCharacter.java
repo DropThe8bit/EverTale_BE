@@ -43,11 +43,14 @@ public class StoryCharacter {
     }
 
     public void addCharacterPersonality(Personality personality) {
-        CharacterPersonality cp = CharacterPersonality.builder()
-                .character(this)
-                .personality(personality)
-                .build();
-        this.characterPersonalities.add(cp);
+        boolean exists = this.characterPersonalities.stream()
+                .anyMatch(cp -> cp.getPersonality().equals(personality));
+        if (!exists) {
+            CharacterPersonality cp = CharacterPersonality.builder()
+                    .character(this)
+                    .personality(personality)
+                    .build();
+            this.characterPersonalities.add(cp);
+        }
     }
-
 }

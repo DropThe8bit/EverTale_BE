@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"story_id", "page"}))
 public class Scene {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
