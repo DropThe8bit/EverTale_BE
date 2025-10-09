@@ -205,12 +205,11 @@ public class StoryApiClient {
     }
 
     // 프롬프트로 이미지 생성 요청
-    public String callFastApiForImageFromPrompt(String prompt, String genre) {
+    public String callFastApiForImageFromPrompt(String prompt) {
         try {
             // JSON 형태로 만들기
             Map<String, Object> body = new HashMap<>();
             body.put("prompt", prompt);
-            body.put("genre", genre);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

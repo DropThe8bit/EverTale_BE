@@ -291,9 +291,7 @@ public class StoryService {
     @Transactional
     public String generateImageFromPrompt(Long storyId, int pageNum, StoryRequestDTO.ImagePromptRequestDTO request) {
         Scene scene = findMyScene(storyId, pageNum);
-
-        String prompt = request.getPrompt();
-        String imageUrl = storyApiClient.callFastApiForImageFromPrompt(prompt, scene.getStory().getGenre().name());
+        String imageUrl = storyApiClient.callFastApiForImageFromPrompt(request.getPrompt());
 
         scene.updateImageUrl(imageUrl);
         return imageUrl;
