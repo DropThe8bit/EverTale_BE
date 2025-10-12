@@ -42,7 +42,7 @@ public class VoiceApiClient {
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<FastApiVoiceResponseDto> response = restTemplate.postForEntity(
-                    fastApiBaseUrl+"/ai/voice/register",
+                    fastApiBaseUrl + "/ai/voice/register",
                     requestEntity,
                     FastApiVoiceResponseDto.class
             );

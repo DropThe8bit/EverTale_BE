@@ -318,7 +318,7 @@ public class StoryService {
     public StoryCollectionResponseDto getStories(Long profileId, Pageable pageable) {
         Profile profile = profileHelper.getAuthenticatedProfile();
 
-        if (profile.getProfileType()== ProfileType.CHILD) {
+        if (profile.getProfileType() == ProfileType.CHILD) {
             profileService.validateChildProfileAccess(profile, profileId);
         } else {
             profileService.validateParentProfileAccess(profile, profileId);
