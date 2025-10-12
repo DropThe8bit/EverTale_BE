@@ -23,10 +23,11 @@ public class CharacterController {
 
     private final CharacterService characterService;
 
-    @Operation(summary = "내가 만든 스토리의 캐릭터 목록 조회", description = "내가 작성한 스토리에 등장하는 모든 캐릭터를 페이지네이션 형태로 조회합니다.")
-    @GetMapping
-    public ApiResponse<CharacterCollectionResponseDto> getMyCharacters(@PageableDefault(size = 8) Pageable pageable){
-        CharacterCollectionResponseDto responseDto = characterService.getMyCharacters(pageable);
+    @Operation(summary = "특정 프로필 유저의 스토리 캐릭터 목록 조회", description = "내가 작성한 스토리에 등장하는 모든 캐릭터를 페이지네이션 형태로 조회합니다.")
+    @GetMapping("/list/{profileId}")
+    public ApiResponse<CharacterCollectionResponseDto> getCharacters(@Parameter(description = "프로필 ID") @PathVariable Long profileId,
+                                                                     @PageableDefault(size = 8) Pageable pageable){
+        CharacterCollectionResponseDto responseDto = characterService.getCharacters(profileId, pageable);
         return ApiResponse.onSuccess(responseDto);
     }
 
