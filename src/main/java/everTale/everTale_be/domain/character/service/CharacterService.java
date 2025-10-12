@@ -4,6 +4,9 @@ import everTale.everTale_be.domain.character.dto.CharacterCollectionResponseDto;
 import everTale.everTale_be.domain.character.dto.CharacterDetailResponseDto;
 import everTale.everTale_be.domain.character.entity.StoryCharacter;
 import everTale.everTale_be.domain.character.repository.StoryCharacterRepository;
+import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
+import everTale.everTale_be.domain.profile.entity.Profile;
+import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
@@ -19,11 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class CharacterService {
 
     private final ProfileHelper profileHelper;
+    private final ProfileService profileService;
     private final StoryCharacterRepository characterRepository;
 
     // 주인공 모음집 조회
-    public CharacterCollectionResponseDto getMyCharacters(Pageable pageable){
-        Long profileId = profileHelper.getAuthenticatedProfileId();
+    public CharacterCollectionResponseDto getCharacters(Long profileId, Pageable pageable){
+        Profile profile = profileHelper.getAuthenticatedProfile();
+
+        if (profile.getProfileType() == ProfileType.CHILD) {
+            profileService.validateChildProfileAccess(profile, profileId);
+        } else {
+            profileService.validateParentProfileAccess(profile, profileId);
+        }
+
         Page<StoryCharacter> characters = characterRepository.findByStoryProfileId(profileId, pageable);
         return CharacterCollectionResponseDto.from(characters);
     }
