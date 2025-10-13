@@ -8,6 +8,8 @@ import everTale.everTale_be.domain.profile.entity.Enum.ProfileType;
 import everTale.everTale_be.domain.profile.entity.Profile;
 import everTale.everTale_be.domain.profile.service.ProfileService;
 import everTale.everTale_be.domain.profile.util.ProfileHelper;
+import everTale.everTale_be.domain.story.entity.Story;
+import everTale.everTale_be.domain.story.service.StoryService;
 import everTale.everTale_be.global.apiPayload.code.status.ErrorStatus;
 import everTale.everTale_be.global.apiPayload.exception.handler.NotFoundHandler;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class CharacterService {
 
     private final ProfileHelper profileHelper;
     private final ProfileService profileService;
+    private final StoryService storyService;
     private final StoryCharacterRepository characterRepository;
 
     // 주인공 모음집 조회
@@ -43,6 +46,8 @@ public class CharacterService {
     public CharacterDetailResponseDto getCharacterDetail(Long characterId){
         StoryCharacter character = characterRepository.findById(characterId)
                 .orElseThrow(()-> new NotFoundHandler(ErrorStatus.CHARACTER_NOT_FOUND));
-        return CharacterDetailResponseDto.from(character);
+        Story story = character.getStory();
+        Profile author = story.getProfile();
+        return CharacterDetailResponseDto.from(character, story, author);
     }
 }
