@@ -328,6 +328,8 @@ public class StoryService {
         return StoryCollectionResponseDto.from(stories);
     }
 
+
+
     public String getSceneText(Long storyId, Long sceneId) {
         boolean isStoryExists = storyRepository.existsById(storyId);
         if (!isStoryExists){
