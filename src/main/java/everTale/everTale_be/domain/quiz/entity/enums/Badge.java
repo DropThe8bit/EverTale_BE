@@ -21,7 +21,7 @@ public enum Badge {
     WORLD_CHANGING_HERO(50, "세상을 바꾸는 영웅님");
 
     private final int threshold;
-    private final String badge;
+    private final String tag;
 
     public static Badge fromSolvedCount(int count) {
         return Arrays.stream(Badge.values())
