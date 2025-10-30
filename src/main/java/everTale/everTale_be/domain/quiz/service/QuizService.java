@@ -100,7 +100,7 @@ public class QuizService {
         Profile profile = profileHelper.getAuthenticatedProfile();
         return QuizResponseDTO.QuizTitleResponseDTO.builder()
                 .correctAnswerCount(profile.getQuizSolvedCount())
-                .badge(profile.getBadge().getBadge())
+                .badge(profile.getBadge().getTag())
                 .build();
     }
 }
