@@ -20,11 +20,15 @@ public class ChildProfileInfoResponseDto implements ProfileInfoResponseDto{
     @Schema(description = "기관명", example = "새싹 유치원")
     private String institution;
 
+    @Schema(description = "칭호", example = "수줍은 새싹 꿈나무")
+    private String badge;
+
     public static ChildProfileInfoResponseDto from(Profile profile){
         return ChildProfileInfoResponseDto.builder()
                 .name(profile.getName())
                 .birthDate(profile.getBirthDate())
                 .institution(profile.getInstitution())
+                .badge(profile.getBadge().getTag())
                 .build();
     }
 }
