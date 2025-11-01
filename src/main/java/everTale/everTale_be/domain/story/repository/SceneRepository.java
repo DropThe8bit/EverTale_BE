@@ -20,7 +20,7 @@ public interface SceneRepository extends JpaRepository<Scene, Long> {
 
     List<Scene> findByStoryIdOrderByPageAsc(Long storyId);
 
-    List<Scene> findAllByStoryIdAndStoryProfileIdAndQuizIsNull(Long storyId, Long profileId);
+    List<Scene> findAllByStoryIdAndQuizIsNull(Long storyId);
 
     Optional<Scene> findByIdAndStoryId(Long sceneId, Long storyId);
 }

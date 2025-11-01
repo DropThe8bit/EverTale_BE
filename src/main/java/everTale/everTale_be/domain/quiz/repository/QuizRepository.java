@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
     @EntityGraph(attributePaths = {"scene", "scene.story"})
-    List<Quiz> findAllByScene_Story_IdAndScene_Story_Profile_Id(Long storyId, Long profileId);
+    List<Quiz> findAllByScene_Story_Id(Long storyId);
 
     @Modifying
     @Transactional
