@@ -30,9 +30,7 @@ public class QuizService {
 
     @Transactional
     public QuizResponseDTO.QuizGenerateResponseDTO generateQuizForRandomScene(Long storyId) {
-        Long profileId = profileHelper.getAuthenticatedProfileId();
-
-        List<Scene> scenes = sceneRepository.findAllByStoryIdAndStoryProfileIdAndQuizIsNull(storyId, profileId);
+        List<Scene> scenes = sceneRepository.findAllByStoryIdAndQuizIsNull(storyId);
         if (scenes.isEmpty()) {
             throw new NotFoundHandler(ErrorStatus.SCENE_NOT_FOUND);
         }
@@ -58,8 +56,7 @@ public class QuizService {
     // quiz 조회
     @Transactional(readOnly = true)
     public List<QuizResponseDTO.QuizGetResponseDTO> getAllQuizzesByStoryId(Long storyId) {
-        Long profileId = profileHelper.getAuthenticatedProfileId();
-        List<Quiz> quizzes = quizRepository.findAllByScene_Story_IdAndScene_Story_Profile_Id(storyId, profileId);
+        List<Quiz> quizzes = quizRepository.findAllByScene_Story_Id(storyId);
 
         return quizzes.stream()
                 .map(QuizResponseDTO.QuizGetResponseDTO::from)
