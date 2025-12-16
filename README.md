@@ -41,3 +41,33 @@
 - `payload` : 응답 관련 구조  
   - `code`, `exception`
 - `validation` : 커스텀 유효성 검증
+
+## 로컬 실행 방법
+### 1. git clone
+```
+git clone https://github.com/DropThe8bit/EverTale_BE.git
+cd evertale_be
+```
+### 2. Environment Variables 생성
+- 필요한 환경변수들을 입력합니다.
+```
+DB_URL=
+DB_USER=
+DB_PASSWORD=
+
+SPRING_SERVER_SERVLET_CONTEXT_PATH=
+
+AWS_ACCESS_KEY=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET=
+
+CLIENT_ID=
+CLIENT_SECRET=
+REDIRECT_URI=
+SECRET_KEY=
+
+AI_BASE_URL=
+```
+
+### 3. 로컬 실행
+- 프로젝트 상단 `Run 'EverTale'`을 클릭하여 어플리케이션을 실행합니다.
