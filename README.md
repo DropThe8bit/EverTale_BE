@@ -49,7 +49,7 @@ git clone https://github.com/DropThe8bit/EverTale_BE.git
 cd evertale_be
 ```
 ### 2. Environment Variables 생성
-- 필요한 환경변수들을 입력합니다.
+- application.yml 파일을 생성하고 다음 환경변수들을 입력합니다.
 ```
 DB_URL=
 DB_USER=
@@ -67,6 +67,69 @@ REDIRECT_URI=
 SECRET_KEY=
 
 AI_BASE_URL=
+```
+#### application.yml
+```
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          time_zone: Asia/Seoul
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+server:
+   servlet:
+     context-path: ${SPRING_SERVER_SERVLET_CONTEXT_PATH}
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+    groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: method
+
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    region:
+      static: ap-northeast-2
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+
+jwt:
+  secret-key: ${SECRET_KEY}
+
+naver:
+  client-id: ${CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
+  redirect-uri: ${REDIRECT_URI}
+
+ai:
+  base-url: ${AI_BASE_URL}
 ```
 
 ### 3. 로컬 실행
